@@ -1,0 +1,13 @@
+keras-cv==0.5.1
+tensorflow==2.11.0
+tensorflow_addons
+git+https://github.com/costiash/stable-diffusion-tensorflow
+pytorch-lightning
+pydub
+huggingface-hub
+scikit-learn
+gradio
+ftfy
+transformers
+git+https://github.com/huggingface/diffusers.git
+git+https://github.com/riffusion/riffusion
