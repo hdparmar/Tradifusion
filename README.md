@@ -18,9 +18,16 @@ I have useed keras-cv version 0.5.1 becuase it supports tensorflow version 2.11.
 Make sure to install dependencies using `pip install requirements.txt`
 
 ## Training
-The model was trained on multiple remote GPUs (NVIDIA GeForece RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow). 
+Train on 256 x 256 Spectrograms of Irish Traditional Tunes. 
+Dataset Obtained using [riffusion-manilab](https://github.com/hdparmar/riffusion-manilab)
+The dataset produces 512x512 images but in the fine-tuning script we use 256x256 because of OOM Erros (it requires lot of GPU RAM).
+
+The model was trained on multiple remote GPUs (NVIDIA GeForece RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow) using Jupyter Lab. 
 
 The advantage of using is to avoid erros with cudnn library and concering not findinf libdevice under `/usr/local/cuda`. It also helps with the matching the Tensorflow compatible verison with CUDA and cuDNN. 
+
+## Checkpoints 
+The various checkpoints will be availble on Hugging Face.
 
 ## To-Do Progrss
 ![](https://geps.dev/progress/33)
@@ -31,6 +38,7 @@ The advantage of using is to avoid erros with cudnn library and concering not fi
 - [ ] Study the model from TensorBoard
 - [ ] [Fine-tune using the Textual-inversion method](https://textual-inversion.github.io/)
 - [ ] Come up with a new model
+- [ ] Deploy a Website for live inference (Use streamlit to deploy the best generated checkpoint)
 
 
 
