@@ -1,31 +1,35 @@
 from textwrap import wrap
 import os
+import csv
 import keras_cv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
+from sklearn import train_test_split
 from keras_cv.models.stable_diffusion.clip_tokenizer import SimpleTokenizer
 from keras_cv.models.stable_diffusion.diffusion_model import DiffusionModel
 from keras_cv.models.stable_diffusion.image_encoder import ImageEncoder
 from keras_cv.models.stable_diffusion.noise_scheduler import NoiseScheduler
 from keras_cv.models.stable_diffusion.text_encoder import TextEncoder
 from stable_diffusion_tf.stable_diffusion import StableDiffusion as StableDiffusionPy
-from keras_cv.models.stable_diffusion.diffusion_model import DiffusionModel
+from tensorflow.keras.callbacks import TensorBoard
+
 from tensorflow import keras
-from trainer import Trainer
+from trainerClass import Trainer
     
 # Load and process the dataset
 data_path = "dataset"
 data_frame = pd.read_csv(os.path.join(data_path, "data_1.csv"))
 data_frame["image"] = data_frame["image"].apply(lambda x: os.path.join(data_path, x))
-    
+print(data_frame.head())
+
 # Constants for text processing
 PADDING_TOKEN = 49407
 MAX_PROMPT_LENGTH = 77
 
-# Load the tokenizer (assuming you've got a SimpleTokenizer class somewhere)
+# Load the Clip tokenizer from Keras-cv
 tokenizer = SimpleTokenizer()
 
 def process_text(caption):
@@ -94,12 +98,34 @@ train_images, val_images, train_texts, val_texts = train_test_split(
     image_paths, tokenized_texts, test_size=0.1, random_state=42
 )
 
-training_dataset = prepare_dataset(train_images, train_texts)
-validation_dataset = prepare_dataset(val_images, val_texts)
 
-# Load weights from Riffusion, Define Strategy and Model
+
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.get_device_details(physical_devices[0])
+
+# Define the Distribute Strategy
 strategy = tf.distribute.MirroredStrategy()
-    
+
+
+# Prepare the dataset 
+training_dataset = prepare_dataset(train_images, train_texts, batch_size=6 * strategy.num_replicas_in_sync)
+validation_dataset = prepare_dataset(val_images, val_texts, batch_size=6 * strategy.num_replicas_in_sync)
+
+
+# Check the shapes of a sample batch from the training dataset
+sample_train_batch = next(iter(training_dataset))
+for k in sample_train_batch:
+    print("Training:", k, sample_train_batch[k].shape)
+
+# Check the shapes of a sample batch from the validation dataset
+sample_val_batch = next(iter(validation_dataset))
+for k in sample_val_batch:
+    print("Validation:", k, sample_val_batch[k].shape)
+
+
+
+# Load weights from Riffusion, Define Model    
 # Download the PyTorch weights for the diffusion model
 diffusion_model_pytorch_weights = keras.utils.get_file(
     origin="https://huggingface.co/riffusion/riffusion-model-v1/resolve/main/riffusion-model-v1.ckpt",
@@ -148,18 +174,48 @@ if __name__ == "__main__":
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
     total_epochs = 20
-    ckpt_path = "checkpoints/finetuned_riffusion_itt_f20.h5"
+    ckpt_path = "checkpoints/finetuned_itt_v3_f20.h5"
     ckpt_callback = tf.keras.callbacks.ModelCheckpoint(
         ckpt_path,
         save_weights_only=True,
-        monitor="val_loss",
+        monitor="loss",
         mode="min",
     )
 
     callbacks = [ckpt_callback, tensorboard_callback]
+    with open('losses.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Epoch", "Training Loss", "Validation Loss"])
 
-    for epoch in range(total_epochs):
-        history = diffusion_ft_trainer.fit(training_dataset, validation_data=validation_dataset, epochs=1, callbacks=callbacks)
-        train_loss = history.history['loss'][0]
-        val_loss = history.history['val_loss'][0]
-        print(f"Epoch {{epoch + 1}}: Training Loss = {{train_loss}}, Validation Loss = {{val_loss}}")
+        train_losses=[]
+        val_losses = []
+        for epoch in range(total_epochs):
+            history = diffusion_ft_trainer.fit(training_dataset, validation_data=validation_dataset, epochs=1, callbacks=callbacks)
+            train_loss ={":.4f"}.format(history.history['loss'][0])
+            val_loss = {":.4f"}.format(history.history['val_loss'][0])
+            writer.writerow([epoch+1, train_loss, val_loss])
+            print(f"Epoch {epoch + 1}: Training Loss = {train_loss}, Validation Loss = {val_loss}")
+
+    # Set up a style - ggplot gives a nice aesthetic touch
+    plt.style.use('ggplot')
+
+    fig, ax = plt.subplots(figsize=(10, 6))  # Bigger size for clarity
+
+    # Plotting the training and validation losses
+    ax.plot(train_losses, 'b', linestyle='-', linewidth=2, label='Training Loss')
+    ax.plot(val_losses, 'r', linestyle='--', linewidth=2, label='Validation Loss')
+
+    # Titles, labels, and legend
+    ax.set_title('Loss Curve Over Epochs', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Epochs', fontsize=14)
+    ax.set_ylabel('Loss', fontsize=14)
+    ax.legend(loc='upper right', fontsize=12)
+
+    # Displaying gridlines
+    ax.grid(True, linestyle='--')
+
+    plt.tight_layout()  # Fitted layout
+    # Comment plt.show() while running the training on container
+    #plt.show() 
+
+    fig.savefig('loss_curve.png', dpi=300, bbox_inches='tight')
