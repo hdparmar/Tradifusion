@@ -22,9 +22,9 @@ Train on 256 x 256 Spectrograms of Irish Traditional Tunes.
 Dataset Obtained using [riffusion-manilab](https://github.com/hdparmar/riffusion-manilab)
 The dataset produces 512x512 images but in the fine-tuning script we use 256x256 because of OOM Erros (it requires lot of GPU RAM).
 
-The model was trained on multiple remote GPUs (NVIDIA GeForece RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow) using Jupyter Lab. 
+The fine-tuning training was done on multiple remote GPUs (NVIDIA GeForece RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow) using Jupyter Lab. 
 
-The advantage of using is to avoid erros with cudnn library and concering not findinf libdevice under `/usr/local/cuda`. It also helps with the matching the Tensorflow compatible verison with CUDA and cuDNN. 
+The advantage of using is to avoid erros with cudnn library and errors concering not finding libdevice library under `/usr/local/cuda`. It also helps with the matching the compatible Tensorflow verison with CUDA and cuDNN. 
 
 ### Running on Jupyter Lab
 The file `finetune_latest.ipynb` can be used to play with the model, visualise the results and tweak the parameters and see the outcome. Once you are satisfied with that, you can go forward and make a training script.
@@ -47,8 +47,10 @@ The various checkpoints will be availble on Hugging Face.
 - [x] [Fine-tune using the Dreambooth approach](https://dreambooth.github.io/)
 - [ ] Fine-tune in the traditional manner using NGC Container
 - [ ] Study the model from TensorBoard
+- [ ] Looping and Interpolation 
+- [ ] Possibility to train on 512x512 images with Gradient Accumulation (but will the forward pass fit in memory?).
 - [ ] [Fine-tune using the Textual-inversion method](https://textual-inversion.github.io/)
-- [ ] Come up with a new model
+- [ ] Come up with a some tweaks model
 - [ ] Deploy a Website for live inference (Use streamlit to deploy the best generated checkpoint)
 
 
