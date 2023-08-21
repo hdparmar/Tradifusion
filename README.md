@@ -13,11 +13,11 @@ The project is of interest to the field of music technology and artificial intel
 ## Background 
 
 
-## Dependencies
+## Dependencies 🛠️
 I have useed keras-cv version 0.5.1 becuase it supports tensorflow version 2.11.0.
 Make sure to install dependencies using `pip install -r requirements.txt`
 
-## Training
+## Training 🏋🏽
 Train on 256 x 256 Spectrograms of Irish Traditional Tunes. 
 Dataset Obtained using [riffusion-manilab](https://github.com/hdparmar/riffusion-manilab)
 The dataset produces 512x512 images but in the fine-tuning script we use 256x256 because of OOM Erros (it requires lot of GPU RAM).
@@ -26,21 +26,21 @@ The fine-tuning training was done on multiple remote GPUs (NVIDIA GeForece RTX 3
 
 The advantage of using is to avoid erros with cudnn library and errors concering not finding libdevice library under `/usr/local/cuda`. It also helps with the matching the compatible Tensorflow verison with CUDA and cuDNN. 
 
-### Running on Jupyter Lab
+### Running on Jupyter Lab 📓
 The file `finetune_latest.ipynb` can be used to play with the model, visualise the results and tweak the parameters and see the outcome. Once you are satisfied with that, you can go forward and make a training script.
 
 
-### Running the Script
+### Running the Script ▶️
 The file `trainerClass.py` is for defining a custom Keras Model for training and testing routines for diffusion model.
 The file `train.py` is a trainig script that you can run within a NGC Tensorflow 23.03 container to save the model weights, losses (in a CSV file), and TensorBoard logs.
 
 Provided you can in the NGC Tensorflow container which is running and you have mounted the dataset into Workspace.
 You can run the script by `python3 train.py`
 
-## Checkpoints 
+## Checkpoints ⛳︎
 The various checkpoints will be availble on Hugging Face.
 
-## To-Do Progrss
+## To-Do Progress
 ![](https://geps.dev/progress/50)
 - [x] Background study
 - [x] Build Dataset 
