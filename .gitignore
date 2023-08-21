@@ -1,4 +1,7 @@
 .DS_Store
 .Dockerfile
 .dockerignore
+
+# Ignore the virtual Environment in Github
+# Env is just to experiment on the Local Machine
 test_env
