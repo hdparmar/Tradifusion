@@ -41,14 +41,14 @@ You can run the script by `python3 train.py`
 The various checkpoints will be availble on Hugging Face.
 
 ## To-Do Progrss
-![](https://geps.dev/progress/33)
+![](https://geps.dev/progress/50)
 - [x] Background study
 - [x] Build Dataset 
 - [x] [Fine-tune using the Dreambooth approach](https://dreambooth.github.io/)
-- [ ] Fine-tune in the traditional manner using NGC Container
-- [ ] Study the model from TensorBoard
+- [x] Fine-tune in the traditional manner using NGC Container
+- [x] Study the model from TensorBoard
 - [ ] Looping and Interpolation 
-- [ ] Possibility to train on 512x512 images with Gradient Accumulation (but will the forward pass fit in memory?).
+- [ ] Possibility to train on 512x512 images with Gradient Accumulation (but will the forward pass fit in memory!??)
 - [ ] [Fine-tune using the Textual-inversion method](https://textual-inversion.github.io/)
 - [ ] Come up with a some tweaks model
 - [ ] Deploy a Website for live inference (Use streamlit to deploy the best generated checkpoint)
