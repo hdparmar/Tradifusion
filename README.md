@@ -1,14 +1,16 @@
 # Tradi-fusion
-Tradi-fusion Refined: Evaluating and Fine-tuning the Riffusion Model for Irish Traditional Music.
+Tradi-fusion Refined: Evaluating and tuning the Diffusion Model for Irish Traditional Music.
 
 # Focus of the project
 The project will investigate the following research questions:
-- How can the Riffusion model be fine-tuned for generating Irish Traditional music?
-- What challenges are involved in fine-tuning the Riffusion model for Irish Traditional music?
-- Can the fine-tuned Riffusion model generate Irish Traditional music that is comparable in quality to
+The main question 
+- Can the Diffusion model produce good results for generating Irish Traditional music?
+- How close can we get with Diffusion Model(s)?
+- What challenges are involved in fine-tuning the model for Irish Traditional music?
+- Can the fine-tuned model generate Irish Traditional music that is comparable in quality to
 human-composed Irish Traditional music? If not, what is the reason?
 
-The project is of interest to the field of music technology and artificial intelligence. It can be of interest to researchers, practitioners, and enthusiasts in these fields who are interested in exploring the possibilities of AI-generated music and its potential applications.
+The project is of interest to the field of Music Technology, Culture and Generative AI. It can be of interest to researchers, practitioners, and enthusiasts in these fields who are interested in exploring the possibilities of AI-generated music and its potential applications and limitations.
 
 ## Background 
 
@@ -22,7 +24,7 @@ Train on 256 x 256 Spectrograms of Irish Traditional Tunes.
 Dataset Obtained using [riffusion-manilab](https://github.com/hdparmar/riffusion-manilab)
 The dataset produces 512x512 images but in the fine-tuning script we use 256x256 because of OOM Erros (it requires lot of GPU RAM).
 
-The fine-tuning training was done on multiple remote GPUs (NVIDIA GeForece RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow) using Jupyter Lab. 
+The fine-tuning training was done on multiple GPUs (NVIDIA GeForce RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow). 
 
 The advantage of using is to avoid erros with cudnn library and errors concering not finding libdevice library under `/usr/local/cuda`. It also helps with the matching the compatible Tensorflow verison with CUDA and cuDNN. 
 
@@ -41,16 +43,17 @@ You can run the script by `python3 train.py`
 The various checkpoints will be availble on Hugging Face.
 
 ## To-Do Progress
-![](https://geps.dev/progress/50)
+![](https://geps.dev/progress/45)
 - [x] Background study
 - [x] Build Dataset 
 - [x] [Fine-tune using the Dreambooth approach](https://dreambooth.github.io/)
 - [x] Fine-tune in the traditional manner using NGC Container
 - [x] Study the model from TensorBoard
+- [ ] Explore tweaking to produce comparable Irish Traditional Tunes
 - [ ] Looping and Interpolation 
 - [ ] Possibility to train on 512x512 images with Gradient Accumulation (but will the forward pass fit in memory!??)
-- [ ] [Fine-tune using the Textual-inversion method](https://textual-inversion.github.io/)
-- [ ] Come up with a some tweaks model
+- [ ] [Fine-tune using the Textual-inversion method](https://textual-inversion.github.io/) (Is the classifier approach a way to go!?)
+- [ ] Come up with a some tweaks and prepare a novel pipeline
 - [ ] Deploy a Website for live inference (Use streamlit to deploy the best generated checkpoint)
 
 
