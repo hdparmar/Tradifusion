@@ -49,6 +49,7 @@ The various checkpoints will be availble on Hugging Face.
 - [x] [Fine-tune using the Dreambooth approach](https://dreambooth.github.io/)
 - [x] Fine-tune in the traditional manner using NGC Container
 - [x] Study the model from TensorBoard
+- [ ] Use AutoEncoderKL or VQ-VAE-2 instead of Image Encoder in Diffusion Model
 - [ ] Explore tweaking to produce comparable Irish Traditional Tunes
 - [ ] Looping and Interpolation 
 - [ ] Possibility to train on 512x512 images with Gradient Accumulation (but will the forward pass fit in memory!??)
@@ -56,7 +57,9 @@ The various checkpoints will be availble on Hugging Face.
 - [ ] Come up with a some tweaks and prepare a novel pipeline
 - [ ] Deploy a Website for live inference (Use streamlit to deploy the best generated checkpoint)
 
+## Acknowledgments
 
+This project adapts the code of AutoEncoderKL & Layers from [stable-diffusion-tensorflow](https://github.com/divamgupta/stable-diffusion-tensorflow). Big Thanks to the original authors and contributors.
 
 
 

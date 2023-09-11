@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
+from tqdm import tqdm
 from sklearn import train_test_split
 from keras_cv.models.stable_diffusion.clip_tokenizer import SimpleTokenizer
 from keras_cv.models.stable_diffusion.diffusion_model import DiffusionModel
@@ -15,7 +16,7 @@ from keras_cv.models.stable_diffusion.noise_scheduler import NoiseScheduler
 from keras_cv.models.stable_diffusion.text_encoder import TextEncoder
 from stable_diffusion_tf.stable_diffusion import StableDiffusion as StableDiffusionPy
 from tensorflow.keras.callbacks import TensorBoard
-
+from AutoEncoderKL import AutoencoderKL, kl_divergence_loss, reconstruction_loss
 from tensorflow import keras
 from trainerClass import Trainer
     
@@ -62,6 +63,19 @@ def process_image(image_path, tokenized_text):
     image = tf.io.read_file(image_path)
     image = tf.io.decode_png(image, 3)
     image = tf.image.resize(image, (RESOLUTION, RESOLUTION))
+    #Expand dimensions to make it 4D
+    image_4d = tf.expand_dims(image, axis=0)
+    # Compute Gradients, for the other 2 channels 
+    # Mel-spectrogram has only 1 channel so it would be nice to experiment with other two channels.
+    dx , dy = tf.image.image_gradients(image_4d)
+    
+    # Squueze dimensions back to 3D
+    dx = tf.squeeze(dx, axis=0)
+    dy = tf.squeeze(dy, axis=0)
+    
+    #Concatenate to make it a 3-channel image
+    image = tf.concat([image, dx, dy], axis=-1)
+    
     return image, tokenized_text
 
 def apply_augmentation(image_batch, token_batch):
@@ -123,6 +137,58 @@ sample_val_batch = next(iter(validation_dataset))
 for k in sample_val_batch:
     print("Validation:", k, sample_val_batch[k].shape)
 
+# Train the AutoEncoderKL First and check the reconstrunction 
+
+with strategy.scope():
+    autoencoder = AutoencoderKL()
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
+
+def kl_divergence_loss(mu, log_var):
+    kl_loss = -0.5 * tf.reduce_sum(1 + log_var - tf.square(mu) - tf.exp(log_var))
+    return kl_loss
+
+def reconstruction_loss(x, x_reconstructed):
+    mse = tf.keras.losses.MeanSquaredError()
+    return mse(x, x_reconstructed)
+
+# Beta, for a fare-trade between losses. We add weights to decide which one of the two losses to have more influence on the model.
+beta = 0.7
+@tf.function
+def train_step(x):
+    with tf.GradientTape() as tape:
+        x_reconstructed, mu, log_var = autoencoder(x)
+        rec_loss = reconstruction_loss(x, x_reconstructed)
+        kl_loss = kl_divergence_loss(mu, log_var)
+        total_loss = rec_loss + beta * kl_loss
+
+    gradients = tape.gradient(total_loss, autoencoder.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, autoencoder.trainable_variables))
+
+    return total_loss, rec_loss, kl_loss
+
+# Store the losses in a CSv file
+with open('kl_rc_losses.csv', 'w', newline='') as csvfile:
+    fieldnames = ['Epoch', 'Total Loss', 'Rec Loss', 'KL Loss']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+
+# Training loop
+epochs = 5  
+total_images = len(training_dataset)
+
+for epoch in range(epochs):
+    progress_bar = tqdm(range(total_images), desc=f"Epoch {epoch+1}")
+    for batch in training_dataset:
+        x = batch['images']  
+        total_loss, rec_loss, kl_loss = train_step(x)
+        # Update the progress bar with losses
+        progress_bar.set_postfix({"Total Loss": total_loss, "Rec Loss": rec_loss, "KL Loss": kl_loss})  
+
+    # Write it into CSV file
+    with open('kl_rc_losses.csv', 'a', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writerow({'Epoch': epoch, 'Total Loss': total_loss.numpy(), 'Rec Loss': rec_loss.numpy(), 'KL Loss': kl_loss.numpy()})
+    print(f"Epoch {epoch}, Total Loss: {total_loss}, Rec Loss: {rec_loss}, KL Loss: {kl_loss}")
 
 
 # Load weights from Riffusion, Define Model    
@@ -216,6 +282,6 @@ if __name__ == "__main__":
 
     plt.tight_layout()  # Fitted layout
     # Comment plt.show() while running the training on container
-    #plt.show() 
+    #plt.show() So
 
     fig.savefig('loss_curve.png', dpi=300, bbox_inches='tight')
