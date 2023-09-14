@@ -126,3 +126,9 @@ class Trainer(tf.keras.Model):
             save_format=save_format,
             options=options,
         )
+
+    def show_model_summary(self):
+        print("Diffusion Model Summary:")
+        self.diffusion_model.summary()
+        print("VAE Model Summary:")
+        self.vae.summary()
