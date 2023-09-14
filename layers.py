@@ -1,3 +1,11 @@
+"""
+Code adapated from stable-diffusion-tensorflow - (https://github.com/divamgupta/stable-diffusion-tensorflow)
+License: Apache 2.0
+
+
+"""
+
+
 import tensorflow as tf
 from tensorflow import keras
 
