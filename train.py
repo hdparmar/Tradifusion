@@ -9,7 +9,7 @@ import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 from tqdm import tqdm
 from sklearn import train_test_split
-from keras_cv.models.stable_diffusion.clip_tokenizer import SimpleTokenizer
+from prepare_dataset import process_text, prepare_dataset
 from keras_cv.models.stable_diffusion.diffusion_model import DiffusionModel
 from keras_cv.models.stable_diffusion.image_encoder import ImageEncoder
 from keras_cv.models.stable_diffusion.noise_scheduler import NoiseScheduler
@@ -30,83 +30,15 @@ print(data_frame.head())
 PADDING_TOKEN = 49407
 MAX_PROMPT_LENGTH = 77
 
-# Load the Clip tokenizer from Keras-cv
-tokenizer = SimpleTokenizer()
-
-def process_text(caption):
-    tokens = tokenizer.encode(caption)
-    tokens = tokens + [PADDING_TOKEN] * (MAX_PROMPT_LENGTH - len(tokens))
-    return np.array(tokens)
-
-
 # Collate the tokenized captions into an array
 tokenized_texts = np.empty((len(data_frame), MAX_PROMPT_LENGTH))
 all_captions = list(data_frame["caption"].values)
 for i, caption in enumerate(all_captions):
     tokenized_texts[i] = process_text(caption)
 
-# Constants and preprocessing functions
-RESOLUTION = 256
-AUTO = tf.data.AUTOTUNE
-POS_IDS = tf.convert_to_tensor([list(range(MAX_PROMPT_LENGTH))], dtype=tf.int32)
-augmenter = keras.Sequential(
-    layers=[
-        keras_cv.layers.CenterCrop(RESOLUTION, RESOLUTION),
-        keras_cv.layers.RandomFlip(),
-        tf.keras.layers.Rescaling(scale=1.0 / 127.5, offset=-1),
-    ]
-)
-
-text_encoder = TextEncoder(MAX_PROMPT_LENGTH)
-
-def process_image(image_path, tokenized_text):
-    image = tf.io.read_file(image_path)
-    image = tf.io.decode_png(image, 3)
-    image = tf.image.resize(image, (RESOLUTION, RESOLUTION))
-    #Expand dimensions to make it 4D
-    image_4d = tf.expand_dims(image, axis=0)
-    # Compute Gradients, for the other 2 channels 
-    # Mel-spectrogram has only 1 channel so it would be nice to experiment with other two channels.
-    dx , dy = tf.image.image_gradients(image_4d)
-    
-    # Squueze dimensions back to 3D
-    dx = tf.squeeze(dx, axis=0)
-    dy = tf.squeeze(dy, axis=0)
-    
-    #Concatenate to make it a 3-channel image
-    image = tf.concat([image, dx, dy], axis=-1)
-    
-    return image, tokenized_text
-
-def apply_augmentation(image_batch, token_batch):
-    return augmenter(image_batch), token_batch
-
-def run_text_encoder(image_batch, token_batch):
-    return (
-        image_batch,
-        token_batch,
-        text_encoder([token_batch, POS_IDS], training=False),
-    )
-
-def prepare_dict(image_batch, token_batch, encoded_text_batch):
-    return {
-        "images": image_batch,
-        "tokens": token_batch,
-        "encoded_text": encoded_text_batch,
-    }
-
-def prepare_dataset(image_paths, tokenized_texts, batch_size=1):
-    dataset = tf.data.Dataset.from_tensor_slices((image_paths, tokenized_texts))
-    dataset = dataset.shuffle(batch_size * 10)
-    dataset = dataset.map(process_image, num_parallel_calls=AUTO).batch(batch_size)
-    dataset = dataset.map(apply_augmentation, num_parallel_calls=AUTO)
-    dataset = dataset.map(run_text_encoder, num_parallel_calls=AUTO)
-    dataset = dataset.map(prepare_dict, num_parallel_calls=AUTO)
-    return dataset.prefetch(AUTO)
-
 # Dataset preparation
 image_paths = np.array(data_frame["image"])
-tokenized_texts = np.array(tokenized_texts)  # Make sure this is an array
+tokenized_texts = np.array(tokenized_texts) 
 
 train_images, val_images, train_texts, val_texts = train_test_split(
     image_paths, tokenized_texts, test_size=0.1, random_state=42
@@ -138,20 +70,11 @@ for k in sample_val_batch:
     print("Validation:", k, sample_val_batch[k].shape)
 
 # Train the AutoEncoderKL First and check the reconstrunction 
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
+autoencoder = AutoencoderKL()
 
-with strategy.scope():
-    autoencoder = AutoencoderKL()
-    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
-
-def kl_divergence_loss(mu, log_var):
-    kl_loss = -0.5 * tf.reduce_sum(1 + log_var - tf.square(mu) - tf.exp(log_var))
-    return kl_loss
-
-def reconstruction_loss(x, x_reconstructed):
-    mse = tf.keras.losses.MeanSquaredError()
-    return mse(x, x_reconstructed)
-
-# Beta, for a fare-trade between losses. We add weights to decide which one of the two losses to have more influence on the model.
+# Beta, for a fare-trade between losses. 
+# We add weights to decide which one of the two losses to have more influence on the model.
 beta = 0.7
 @tf.function
 def train_step(x):
@@ -173,24 +96,35 @@ with open('kl_rc_losses.csv', 'w', newline='') as csvfile:
     writer.writeheader()
 
 # Training loop
-epochs = 5  
+epochs = 25  
 total_images = len(training_dataset)
 
-for epoch in range(epochs):
-    progress_bar = tqdm(range(total_images), desc=f"Epoch {epoch+1}")
-    for batch in training_dataset:
-        x = batch['images']  
-        total_loss, rec_loss, kl_loss = train_step(x)
-        # Update the progress bar with losses
-        progress_bar.set_postfix({"Total Loss": total_loss, "Rec Loss": rec_loss, "KL Loss": kl_loss})  
+try:
+    for epoch in range(epochs):
+        progress_bar = tqdm(range(total_images), desc=f"Epoch {epoch+1}")
+        for batch in training_dataset:
+            x = batch['images']  
+            total_loss, rec_loss, kl_loss = train_step(x)
+            # Update the progress bar with losses
+            loss_stats = {"Total Loss": float(total_loss.numpy()), "Rec Loss": float(rec_loss.numpy()), "KL Loss": float(kl_loss.numpy())}
+            progress_bar.set_postfix(loss_stats)  
 
-    # Write it into CSV file
-    with open('kl_rc_losses.csv', 'a', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writerow({'Epoch': epoch, 'Total Loss': total_loss.numpy(), 'Rec Loss': rec_loss.numpy(), 'KL Loss': kl_loss.numpy()})
-    print(f"Epoch {epoch}, Total Loss: {total_loss}, Rec Loss: {rec_loss}, KL Loss: {kl_loss}")
+        # Save at the end of each epoch
+        autoencoder.save(f"checkpoints/AutoEncoderKL_epoch_{epoch}")
+        # Write it into CSV file
+        with open('kl_rc_losses.csv', 'a', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writerow({'Epoch': epoch, 'Total Loss': total_loss.numpy(), 'Rec Loss': rec_loss.numpy(), 'KL Loss': kl_loss.numpy()})
+        print(f"Epoch {epoch}, Total Loss: {total_loss}, Rec Loss: {rec_loss}, KL Loss: {kl_loss}")
 
+except MemoryError:
+    print("Hit the memory wall, Reduce batch size.")
+except Exception as e:
+    print(f"Something unexpected happened Here's the catch: {e}")
+finally:
+    print("Model Trained!!")
 
+"""
 # Load weights from Riffusion, Define Model    
 # Download the PyTorch weights for the diffusion model
 diffusion_model_pytorch_weights = keras.utils.get_file(
@@ -285,3 +219,5 @@ if __name__ == "__main__":
     #plt.show() So
 
     fig.savefig('loss_curve.png', dpi=300, bbox_inches='tight')
+
+    """
