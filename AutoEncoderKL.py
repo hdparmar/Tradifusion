@@ -124,9 +124,9 @@ class CustomEncoder(keras.Model):
         return mu, log_var
 
     def reparameterize(self, mu, log_var):
-        epsilon = tf.random.normal(shape=mu.shape)
-        z = mu + tf.exp(0.5 * log_var) * epsilon
-        return z
+        epsilon = tf.random.normal(shape=tf.shape(mu))
+        return mu + tf.exp(0.5 * log_var) * epsilon
+        
 
 class CustomDecoder(keras.Model):
     def __init__(self):
