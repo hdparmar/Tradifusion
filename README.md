@@ -1,5 +1,5 @@
-# Tradi-fusion
-Tradi-fusion Refined: Evaluating and tuning the Diffusion Model for Irish Traditional Music.
+# Tradifusion
+Tradifusion Refined: Evaluating and tuning the Diffusion Model for Irish Traditional Music.
 
 # Focus of the project
 The project will investigate the following research questions:
@@ -26,8 +26,8 @@ Make sure to install dependencies using `pip install -r requirements.txt`
 ## Training 🏋🏽
 Train on 512 x 512 Spectrograms of Irish Traditional Tunes. 
 
-The dataset produces 512x512 images!
-Main Dataset Card (hugging-face) [hdparmar/irish-traditional-tunes](https://huggingface.co/datasets/hdparmar/irish-traditional-tunes)
+The dataset contains 512x512 images!
+Main Dataset Card (hugging-face) [hdparmar/irish-traditional-tunes](https://huggingface.co/datasets/hdparmar/irish-traditional-tunes).
 
 
 The fine-tuning training was done on multiple GPUs (NVIDIA GeForce RTX 3090) with the use of [NVIDIA NGC Tensorflow container](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tensorflow). 
@@ -46,12 +46,12 @@ Provided you can in the NGC Tensorflow container which is running and you have m
 You can run the script by `python3 train.py`
 
 ## Checkpoints ⛳︎
-The various checkpoints will be availble on Hugging Face.
-Training files and metrics [TFM](https://huggingface.co/hdparmar/tradfusion-v2-training-files)
-Main Model: [tradfusion-v2](https://huggingface.co/hdparmar/tradfusion-v2) 
+The various checkpoints and metrics availble on Hugging Face, along with files.
+[Training files and metrics](https://huggingface.co/hdparmar/tradfusion-v2-training-files).
+Main Model: [tradfusion-v2](https://huggingface.co/hdparmar/tradfusion-v2).
 
 ## To-Do Progress
-![](https://geps.dev/progress/45)
+![](https://geps.dev/progress/90)
 - [x] Background study
 - [x] Build Dataset 
 - [x] [Fine-tune using the Dreambooth approach](https://dreambooth.github.io/)
@@ -60,7 +60,6 @@ Main Model: [tradfusion-v2](https://huggingface.co/hdparmar/tradfusion-v2)
 - [x] Explore tweaking to produce comparable Irish Traditional Tunes
 - [x] Looping and Interpolation 
 - [x] Possibility to train on 512x512 images with Gradient Accumulation (but will the forward pass fit in memory!??)
-- [ ] [Fine-tune using the Textual-inversion method](https://textual-inversion.github.io/) (Is the classifier approach a way to go!?)
 - [x] Come up with a some tweaks and prepare a novel pipeline
 - [ ] Deploy a Website for live inference (Use streamlit to deploy the best generated checkpoint)
 
