@@ -17,7 +17,7 @@ human-composed Irish Traditional music? If not, what is the reason?
 The project is of interest to the field of Music Technology, Culture and Generative AI. It can be of interest to researchers, practitioners, and enthusiasts in these fields who are interested in exploring the possibilities of AI-generated music and its potential applications and limitations.
 
 <p align="center">
-  <img alt="Sequential visualization of a diffusion process model fine-tuned on Irish traditional tune spectrograms, showing the transition from random noise at step 0 to structured data at step 50. The top row labeled 'Forward Process' shows the gradual formation of patterns, while the bottom row labeled 'Reverse Process' illustrates the deconstruction back to noise" src="images/fr.png" title="Visualization of Diffusion Process on Irish Tune Spectrograms - From Chaos to Harmony and Back">
+  <img alt="Sequential visualization of a diffusion process model fine-tuned on Irish traditional tune spectrograms, showing the transition from random noise at step 0 to structured data at step 50. The top row labeled 'Forward Process' shows the gradual formation of patterns, while the bottom row labeled 'Reverse Process' illustrates the deconstruction back to noise" src="images/Step 50.png" title="Visualization of Diffusion Process on Irish Tune Spectrograms - From Chaos to Harmony and Back">
   <br>
   <em>Figure: Visualization of Diffusion Process on Irish Traditional Tunes Spectrogram - From Chaos to Harmony and Back</em>
 </p>
