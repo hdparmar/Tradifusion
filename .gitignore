@@ -2,6 +2,9 @@
 .Dockerfile
 .dockerignore
 
+# Ignore Cache
+__pycache__
+
 # Ignore the virtual Environment in Github
 # Env is just to experiment on the Local Machine
 test_env

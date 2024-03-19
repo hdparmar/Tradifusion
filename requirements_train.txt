@@ -2,6 +2,7 @@ keras-cv==0.5.1
 tensorflow==2.11.0
 tensorflow_addons
 git+https://github.com/costiash/stable-diffusion-tensorflow
+diffusers==0.9.0
 pytorch-lightning
 pydub
 huggingface-hub
