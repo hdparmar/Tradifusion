@@ -22,11 +22,22 @@ The project is of interest to the field of Music Technology, Culture and Generat
   <em>Figure: Visualization of Diffusion Process on Irish Traditional Tunes Spectrogram - From Chaos to Harmony and Back</em>
 </p>
 
-## Background 
+### Testing the Inference pipeline ▶️
+```python
+from inference import TradifusionPipeline
 
+pipeline = TradifusionPipeline.load_checkpoint("hdparmar/tradfusion-v2")
 
-## Dependencies 🛠️
-[Under Construction]
+# Define your start and end prompts
+start_prompt = "An Irish traditional tune"
+end_prompt = "An Irish traditional tune with acoustic fiddle lead"
+
+# Generate an image based on the prompts
+generated_image = pipeline.tradfuse(start_prompt, end_prompt, num_inference_steps=50, alpha=0.5)
+
+# Save or display the generated image
+generated_image.save("output_image.png")
+```
 
 ## Training 🏋🏽
 Train on 512 x 512 Spectrograms of Irish Traditional Tunes. 
@@ -43,8 +54,7 @@ The advantage of using is to avoid erros with cudnn library and errors concering
 The file `finetune_itt.ipynb` can be used to play with the model, visualise the results and tweak the parameters using the config file `spectrogram.yaml` and see the outcome. Once you are satisfied with that, you can go forward and make a training script.
 
 
-### Running the Script ▶️
-[Under Construction]
+
 
 
 
