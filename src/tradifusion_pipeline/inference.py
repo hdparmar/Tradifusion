@@ -16,12 +16,13 @@ from diffusers.schedulers import DDIMScheduler, LMSDiscreteScheduler, PNDMSchedu
 from diffusers.utils import logging
 from huggingface_hub import hf_hub_download
 from PIL import Image
+from pydub import AudioSegment
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 
 from util import torch_util
 from external.prompt_weighting import get_weighted_text_embeddings
 from datatypes import PromptInput, InferenceInput
-
+from imgs2audio import wav_bytes_from_spectrogram_image, write_bytesio_to_file
 
 class TradifusionPipeline(DiffusionPipeline):
     def __init__(
@@ -368,6 +369,89 @@ class TradifusionPipeline(DiffusionPipeline):
 
         return dict(images=image, latents=latents, nsfw_content_detected=False)
     
+    def txt2audio_tradfusion(
+        self,
+        start_prompt: str,
+        end_prompt: str,
+        num_steps: int = 10,
+        init_image: T.Optional[Image.Image] = None,
+        mask_image: T.Optional[Image.Image] = None,
+        use_reweighting: bool = True,
+        save_dir: str = "transition_images",
+        audio_dir: str = "transition_audios",
+        duration: int = 5119,
+        nmels: int = 512,
+        maxvol: int = 100,
+        power_for_image: float = 0.25,
+    ) -> AudioSegment:
+        """
+        Generates a series of images transitioning from the start prompt to the end prompt and converts each spectrogram to audio.
+
+        Args:
+            start_prompt (str): The starting text prompt.
+            end_prompt (str): The ending text prompt.
+            num_steps (int): Number of steps (images) in the transition.
+            init_image (Image.Image, optional): Initial image for conditioning. If None, a random image is chosen.
+            mask_image (Image.Image, optional): Mask image to guide the generation.
+            use_reweighting (bool): Whether to use prompt reweighting.
+
+        Additional Args:
+            audio_save_dir (str): To save the generated audio files.
+            duration, nmels, maxvol, power_for_image, device: Parameters for audio conversion.
+
+        Returns:
+            List[Image.Image]: A list of images representing the transition.
+        """
+        images = []
+        os.makedirs(save_dir, exist_ok=True)
+        os.makedirs(audio_dir, exist_ok=True)
+        for step in range(num_steps):
+            alpha = step / (num_steps - 1)  # alpha value
+            image = self.tradfuse(
+                start_prompt=start_prompt,
+                end_prompt=end_prompt,
+                num_inference_steps=50,  # 50 for good results
+                alpha=alpha,
+                init_image=init_image,
+                mask_image=mask_image,
+                use_reweighting=use_reweighting,
+            )
+            images.append(image)
+            # Filename and save the image
+            filename = f"transition_image_{step +1}.png"
+            filepath = os.path.join(save_dir, filename)
+            image.save(filepath)
+
+            # Spectrogram to audio
+            audio_filename = f"transition_audio_{step + 1}.wav"
+            audio_filepath = os.path.join(audio_dir, audio_filename)
+            wav_bytes, duration_s = wav_bytes_from_spectrogram_image(image, 
+                                                                     duration=duration, 
+                                                                     nmels=nmels, 
+                                                                     maxvol=maxvol, 
+                                                                     power_for_image=power_for_image,
+                                                                     device="cpu",
+                                                                     display=False)
+            write_bytesio_to_file(audio_filepath, wav_bytes)
+
+        final_audio = "final_transition_audio.wav"
+        final_audio_path = os.path.join(audio_dir, final_audio)
+        self.concatenate_audios(audio_dir, final_audio_path)
+        combined_audio = AudioSegment.from_wav(final_audio_path)
+        
+        return combined_audio
+    
+    def concatenate_audios(self, audio_dir: str, output_file: str):
+        """
+        Concatenates all audio files in the specified directory into a single audio file.
+        """
+        audio_files = sorted([f for f in os.listdir(audio_dir) if f.endswith('.wav')])
+        combined = AudioSegment.empty()
+        for filename in audio_files:
+            filepath = os.path.join(audio_dir, filename)
+            audio_segment = AudioSegment.from_wav(filepath)
+            combined += audio_segment
+        combined.export(output_file, format="wav")
 
 def preprocess_image(image: Image.Image) -> torch.Tensor:
     """
