@@ -32,7 +32,7 @@ pipeline = TradifusionPipeline.load_checkpoint("hdparmar/tradfusion-v2")
 start_prompt = "An Irish traditional tune"
 end_prompt = "An Irish traditional tune with acoustic fiddle lead"
 
-# Generate an image based on the prompts
+# Generate a single image based on the start and end prompts
 generated_image = pipeline.tradfuse(start_prompt, 
                                     end_prompt, 
                                     num_inference_steps=50, 
@@ -40,6 +40,14 @@ generated_image = pipeline.tradfuse(start_prompt,
 
 # Save or display the generated image
 generated_image.save("output_image.png")
+
+# Generate audio based on the prompts, including interpolation steps as num_steps
+# NOTE: Inference on CPU can take long time, avg 8 minutes for 1 image and audio
+generated_image = pipeline.txt2audio_tradfusion(start_prompt, 
+                                    end_prompt, 
+                                    num_steps=2)
+
+# All generated images, audio and combined audio from interpolation in local dir.
 ```
 
 ## Training 🏋🏽
