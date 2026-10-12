@@ -8,3 +8,5 @@ __pycache__
 # Ignore the virtual Environment in Github
 # Env is just to experiment on the Local Machine
 test_env
+# Raw clips from examples/generate_examples.py (the page uses media/)
+examples/output/
