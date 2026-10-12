@@ -184,8 +184,12 @@ def wav_bytes_from_spectrogram_image(image: Image.Image, duration: int, nmels: i
     if display:
         display_results(image, samples, windowed_samples, sample_rate)
     wav_bytes = io.BytesIO()
-    # Clip before the int16 cast so a loud spectrogram saturates instead of wrapping around.
-    wavfile.write(wav_bytes, sample_rate, np.clip(windowed_samples, -32768, 32767).astype(np.int16))
+    # A dark spectrogram can decode past the int16 range (loudness grows with darkness to the 4th power).
+    # Scale it down instead of letting the cast wrap around.
+    peak = np.abs(windowed_samples).max()
+    if peak > 32767:
+        windowed_samples = windowed_samples * (32767 / peak)
+    wavfile.write(wav_bytes, sample_rate, windowed_samples.astype(np.int16))
     wav_bytes.seek(0)
 
     duration_s = float(len(windowed_samples)) / sample_rate
