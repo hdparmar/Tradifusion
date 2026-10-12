@@ -209,6 +209,7 @@
     }
     .ticks span { padding-left: 2px; white-space: nowrap; overflow: hidden; transition: color 0.2s ease; }
     .ticks span.on { color: var(--accent); }
+    .ticks .greek { font-style: normal; text-transform: none; }
     .time { margin: 6px 0 0; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 
     .tracks { list-style: none; max-width: 44rem; margin: 20px 0 0; padding: 0; }
@@ -285,7 +286,7 @@
           <p class="muted">
             Everything below was generated in October 2026, on a laptop GPU, with the published model and the pipeline in
             <a class="text-link" href="https://github.com/hdparmar/Tradifusion">this repository</a>:
-            19 clips of 5.12 seconds, all of them, unedited apart from matching their volume. The settings for each are in
+            71 clips of 5.12 seconds, all of them, unedited apart from matching their volume. The settings for each are in
             <a href="https://github.com/hdparmar/Tradifusion/blob/main/examples/experiments.json">experiments.json</a>.
           </p>
         </div>
@@ -467,12 +468,308 @@
       </div>
       </div>
     </section>
+    <section aria-labelledby="interp" class="section">
+      <div class="col">
+      <div class="sh"><h2 id="interp" class="mono"><span class="accent">▸ 02</span><span>Between two prompts</span></h2></div>
+      <p class="lede">The text embedding slides from the first prompt to the second in even steps of α while the
+      seed image and noise stay fixed. More steps give a smoother walk, and more repetition.</p>
+      <div class="stack">
+      <figure class="strip" data-audio="media/i01.mp3" data-duration="51.10" data-frames="10">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ I01</span> 10 steps · seed 42 · 0:51</span>
+          <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> An Irish tune with acoustic fiddle lead</span>
+          <p class="note">The 10-step interpolation from Figure 23 of the thesis.</p>
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:10">
+            <button type="button" class="frame" aria-label="Play 10 steps · seed 42 · 0:51. Click a frame to jump to it.">
+              <img class="spec" src="media/i01-strip.webp" width="2560" height="256" alt="10 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">0.11</span><span data-i="2">0.22</span><span data-i="3">0.33</span><span data-i="4">0.44</span><span data-i="5">0.56</span><span data-i="6">0.67</span><span data-i="7">0.78</span><span data-i="8">0.89</span><span data-i="9">1</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:51</p>
+      </figure>
+      <figure class="strip" data-audio="media/i02.mp3" data-duration="25.55" data-frames="5">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ I02</span> 5 steps · seed 21 · 0:26</span>
+          <span class="prompt">A slow Irish air on uilleann pipes <span class='arrow'>→</span> A lively Irish reel on tin whistle</span>
+          
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:5">
+            <button type="button" class="frame" aria-label="Play 5 steps · seed 21 · 0:26. Click a frame to jump to it.">
+              <img class="spec" src="media/i02-strip.webp" width="1280" height="256" alt="5 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">0.25</span><span data-i="2">0.5</span><span data-i="3">0.75</span><span data-i="4">1</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:26</p>
+      </figure>
+      <figure class="strip" data-audio="media/i03.mp3" data-duration="25.55" data-frames="5">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ I03</span> 5 steps · seed 13 · 0:26</span>
+          <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> A mournful violin piece</span>
+          <p class="note">The alpha example from Section 5.4.</p>
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:5">
+            <button type="button" class="frame" aria-label="Play 5 steps · seed 13 · 0:26. Click a frame to jump to it.">
+              <img class="spec" src="media/i03-strip.webp" width="1280" height="256" alt="5 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">0.25</span><span data-i="2">0.5</span><span data-i="3">0.75</span><span data-i="4">1</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:26</p>
+      </figure>
+      <figure class="strip" data-audio="media/i04.mp3" data-duration="25.55" data-frames="5">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ I04</span> 5 steps · seed 64 · 0:26</span>
+          <span class="prompt">An Irish jig on fiddle <span class='arrow'>→</span> A Swedish folk polska on nyckelharpa</span>
+          
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:5">
+            <button type="button" class="frame" aria-label="Play 5 steps · seed 64 · 0:26. Click a frame to jump to it.">
+              <img class="spec" src="media/i04-strip.webp" width="1280" height="256" alt="5 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">0.25</span><span data-i="2">0.5</span><span data-i="3">0.75</span><span data-i="4">1</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:26</p>
+      </figure>
+      <figure class="strip" data-audio="media/i05.mp3" data-duration="25.55" data-frames="5">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ I05</span> 5 steps · seed 5 · 0:26</span>
+          <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> Lively tin whistle and hand drum rhythm</span>
+          
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:5">
+            <button type="button" class="frame" aria-label="Play 5 steps · seed 5 · 0:26. Click a frame to jump to it.">
+              <img class="spec" src="media/i05-strip.webp" width="1280" height="256" alt="5 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">0.25</span><span data-i="2">0.5</span><span data-i="3">0.75</span><span data-i="4">1</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:26</p>
+      </figure>
+      <figure class="strip" data-audio="media/i06.mp3" data-duration="25.55" data-frames="5">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ I06</span> 5 steps · seed 8 · 0:26</span>
+          <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> An Irish traditional tune featuring a solo uilleann pipes melody</span>
+          
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:5">
+            <button type="button" class="frame" aria-label="Play 5 steps · seed 8 · 0:26. Click a frame to jump to it.">
+              <img class="spec" src="media/i06-strip.webp" width="1280" height="256" alt="5 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">0.25</span><span data-i="2">0.5</span><span data-i="3">0.75</span><span data-i="4">1</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:26</p>
+      </figure>
+      </div>
+      </div>
+    </section>
+    <section aria-labelledby="walk" class="section">
+      <div class="col">
+      <div class="sh"><h2 id="walk" class="mono"><span class="accent">▸ 03</span><span>Walking the seed</span></h2></div>
+      <p class="lede">Same prompt the whole way; only the noise moves, by spherical interpolation between three seeds.
+      This is how Riffusion makes endless loops, and where the repetition the thesis mentions comes from.</p>
+      <div class="stack">
+      <figure class="strip" data-audio="media/w01.mp3" data-duration="25.55" data-frames="5">
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ W01</span> 5 clips · 0:26</span>
+          <span class="prompt">An Irish traditional tune</span>
+          <p class="note">One prompt, walking the noise seed.</p>
+        </figcaption>
+        <div class="scroller">
+          <div class="strip-inner" style="--n:5">
+            <button type="button" class="frame" aria-label="Play 5 clips · 0:26. Click a frame to jump to it.">
+              <img class="spec" src="media/w01-strip.webp" width="1280" height="256" alt="5 generated spectrograms side by side" loading="lazy">
+              <span class="playhead" aria-hidden="true"></span>
+              <span class="state mono" aria-hidden="true">▶</span>
+            </button>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0">seed 101</span><span data-i="1">·</span><span data-i="2">seed 202</span><span data-i="3">·</span><span data-i="4">seed 303</span></div>
+          </div>
+        </div>
+        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:26</p>
+      </figure>
+      </div>
+      </div>
+    </section>
+    <section aria-labelledby="settings" class="section">
+      <div class="col">
+      <div class="sh"><h2 id="settings" class="mono"><span class="accent">▸ 04</span><span>What the settings do</span></h2></div>
+      <p class="lede">Prompt <q>An Irish traditional tune</q> and seed 42 throughout; one setting changes per row.
+      Defaults are denoising 0.75 and guidance 7.</p>
+      <h3 class="mono sub">Denoising strength: how far it may wander from the seed</h3>
+      <div class="grid five">
+      <figure class="clip still">
+        <div class="frame"><img class="spec" src="media/seed-05_00040.webp" width="256" height="256" alt="The seed spectrogram, a real recording from the dataset" loading="lazy"></div>
+        <figcaption><span class="mono edge"><span class="accent">▸ SEED</span> from the dataset</span><span class="prompt">Where it starts</span></figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/s030.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/s030.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ S030</span> denoising 0.30</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/s050.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/s050.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ S050</span> denoising 0.50</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/s075.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/s075.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ S075</span> denoising 0.75</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/s095.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/s095.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ S095</span> denoising 0.95</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      </div>
+      <h3 class="mono sub">Guidance: how hard the prompt pulls</h3>
+      <div class="grid">
+      <figure class="clip" data-audio="media/g01.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/g01.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ G01</span> guidance 1</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/g03.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/g03.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ G03</span> guidance 3</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/g07.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/g07.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ G07</span> guidance 7</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/g12.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/g12.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ G12</span> guidance 12</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      </div>
+      <h3 class="mono sub">Seed image: the same prompt from four starting points</h3>
+      <div class="grid">
+      <figure class="clip" data-audio="media/m1.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/m1.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <img class="inset" src="media/seed-05_00040.webp" width="128" height="128" alt="" loading="lazy"><span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ M1</span> seed image A</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/m2.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/m2.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <img class="inset" src="media/seed-image_local_9377.webp" width="128" height="128" alt="" loading="lazy"><span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ M2</span> seed image B</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/m3.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/m3.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <img class="inset" src="media/seed-image_local_282.webp" width="128" height="128" alt="" loading="lazy"><span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ M3</span> seed image C</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      <figure class="clip" data-audio="media/m4.mp3" data-duration="5.11" data-frames="1">
+        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
+          <img class="spec" src="media/m4.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
+          <img class="inset" src="media/seed-image_local_30.webp" width="128" height="128" alt="" loading="lazy"><span class="playhead" aria-hidden="true"></span>
+          <span class="state mono" aria-hidden="true">▶</span>
+        </button>
+        <figcaption>
+          <span class="mono edge"><span class="accent">▸ M4</span> seed image D</span>
+          <span class="prompt">An Irish traditional tune</span>
+        </figcaption>
+      </figure>
+      </div>
+      </div>
+    </section>
     <section aria-labelledby="how" class="section">
       <div class="col">
-      <div class="sh"><h2 id="how" class="mono"><span class="accent">▸ 02</span><span>How it works</span></h2></div>
+      <div class="sh"><h2 id="how" class="mono"><span class="accent">▸ 05</span><span>How it works</span></h2></div>
       <ol class="tracks">
         <li><span class="mono accent">S1</span><div><h3>Cut</h3><p>About 1,700 recordings from Bob L. T. Sturm's collection, made mono at 44.1 kHz and cut into 5.12-second pieces, with silence removed.</p></div></li>
-        <li><span class="mono accent">S2</span><div><h3>Draw</h3><p>Each piece becomes a 512 × 512 picture: a mel spectrogram with 512 bands from 60 to 8,500 Hz, 100 ms Hann windows, 10 ms apart. Dark means loud.</p></div></li>
+        <li><span class="mono accent">S2</span><div><h3>Draw</h3><p>Each piece becomes a 512 × 512 picture: a mel spectrogram with 512 bands from 60 to 8,500 Hz, 100 ms Hann windows, 10 ms apart. The louder a band, the stronger its line.</p></div></li>
         <li><span class="mono accent">S3</span><div><h3>Caption</h3><p>Every picture gets the same caption, <q>An Irish Traditional Tune</q>: about 9,000 image and text pairs.</p></div></li>
         <li><span class="mono accent">S4</span><div><h3>Fine-tune</h3><p>Starting from Riffusion v1, the U-Net trains for 122k steps (202 epochs) on two RTX A6000s, about four days. The CLIP text encoder stays frozen.</p></div></li>
         <li><span class="mono accent">S5</span><div><h3>Generate</h3><p>A real spectrogram from the dataset is encoded, noised (denoising 0.75) and denoised over 50 steps, steered by the prompt. Sliding α between prompts or seeds gives the next frame.</p></div></li>
@@ -482,13 +779,13 @@
         <div><dt>Pairs</dt><dd>≈ 9,000</dd></div>
         <div><dt>Frame</dt><dd>512 × 512 · 5.12 s</dd></div>
         <div><dt>Training</dt><dd>122k steps · 2 × A6000 · 4 days</dd></div>
-        <div><dt>One clip here</dt><dd>≈ 4 min · Radeon Pro 5500M · fp16</dd></div>
+        <div><dt>One clip here</dt><dd>≈ 3 min · Radeon Pro 5500M · fp16</dd></div>
       </dl>
       </div>
     </section>
     <section aria-labelledby="2024" class="section">
       <div class="col">
-      <div class="sh"><h2 id="2024" class="mono"><span class="accent">▸ 03</span><span>The 2024 examples</span></h2></div>
+      <div class="sh"><h2 id="2024" class="mono"><span class="accent">▸ 06</span><span>The 2024 examples</span></h2></div>
       <p class="lede">The clips this page launched with in March 2024, made on the CPU of this same laptop at about
       ten minutes each. Their spectrograms are redrawn here from the audio.</p>
       <div class="grid">
@@ -540,7 +837,7 @@
               <span class="playhead" aria-hidden="true"></span>
               <span class="state mono" aria-hidden="true">▶</span>
             </button>
-            <div class="mono ticks" aria-hidden="true"><span data-i="0">α 0</span><span data-i="1">1</span></div>
+            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">1</span></div>
           </div>
         </div>
         <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:10</p>
@@ -550,7 +847,7 @@
     </section>
     <section aria-labelledby="limits" class="section">
       <div class="col">
-      <div class="sh"><h2 id="limits" class="mono"><span class="accent">▸ 04</span><span>What it can&#x27;t do</span></h2></div>
+      <div class="sh"><h2 id="limits" class="mono"><span class="accent">▸ 07</span><span>What it can&#x27;t do</span></h2></div>
       <ul class="plain">
         <li><strong>It doesn't write tunes.</strong> Each frame is 5 seconds with no idea of the AABB form of a reel or jig. Long pieces are frames placed side by side.</li>
         <li><strong>Griffin-Lim guesses the phase,</strong> so the sound is smeared and a little metallic. A trained vocoder (MelGAN, HiFi-GAN) would sound much cleaner.</li>

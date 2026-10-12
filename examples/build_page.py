@@ -116,7 +116,9 @@ def strip(exp_id: str, head: str, title_html: str, note: str, labels: list[str],
     n = len(labels)
     src = src or f"media/{exp_id}.mp3"
     img = img or f"media/{exp_id}-strip.webp"
-    cells = "".join(f'<span data-i="{i}">{e(l)}</span>' for i, l in enumerate(labels))
+    # .mono is uppercase, which would turn α into a capital alpha that reads as "A".
+    cells = "".join(f'<span data-i="{i}">{e(l).replace("α", "<i class=greek>α</i>")}</span>'
+                    for i, l in enumerate(labels))
     note_html = f'<p class="note">{e(note)}</p>' if note else ""
     return f"""
       <figure class="strip" data-audio="{e(src)}" data-duration="{duration:.2f}" data-frames="{n}">
@@ -313,7 +315,7 @@ def render(manifest: dict, legacy_dur: dict) -> str:
     sections.append(("how", "How it works", """
       <ol class="tracks">
         <li><span class="mono accent">S1</span><div><h3>Cut</h3><p>About 1,700 recordings from Bob L. T. Sturm's collection, made mono at 44.1 kHz and cut into 5.12-second pieces, with silence removed.</p></div></li>
-        <li><span class="mono accent">S2</span><div><h3>Draw</h3><p>Each piece becomes a 512 × 512 picture: a mel spectrogram with 512 bands from 60 to 8,500 Hz, 100 ms Hann windows, 10 ms apart. Dark means loud.</p></div></li>
+        <li><span class="mono accent">S2</span><div><h3>Draw</h3><p>Each piece becomes a 512 × 512 picture: a mel spectrogram with 512 bands from 60 to 8,500 Hz, 100 ms Hann windows, 10 ms apart. The louder a band, the stronger its line.</p></div></li>
         <li><span class="mono accent">S3</span><div><h3>Caption</h3><p>Every picture gets the same caption, <q>An Irish Traditional Tune</q>: about 9,000 image and text pairs.</p></div></li>
         <li><span class="mono accent">S4</span><div><h3>Fine-tune</h3><p>Starting from Riffusion v1, the U-Net trains for 122k steps (202 epochs) on two RTX A6000s, about four days. The CLIP text encoder stays frozen.</p></div></li>
         <li><span class="mono accent">S5</span><div><h3>Generate</h3><p>A real spectrogram from the dataset is encoded, noised (denoising 0.75) and denoised over 50 steps, steered by the prompt. Sliding α between prompts or seeds gives the next frame.</p></div></li>
@@ -323,7 +325,7 @@ def render(manifest: dict, legacy_dur: dict) -> str:
         <div><dt>Pairs</dt><dd>≈ 9,000</dd></div>
         <div><dt>Frame</dt><dd>512 × 512 · 5.12 s</dd></div>
         <div><dt>Training</dt><dd>122k steps · 2 × A6000 · 4 days</dd></div>
-        <div><dt>One clip here</dt><dd>≈ 4 min · Radeon Pro 5500M · fp16</dd></div>
+        <div><dt>One clip here</dt><dd>≈ 3 min · Radeon Pro 5500M · fp16</dd></div>
       </dl>"""))
 
     # 06 The 2024 examples.
