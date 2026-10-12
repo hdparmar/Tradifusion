@@ -283,12 +283,7 @@
             music as spectrograms. I fine-tuned it on about 9,000 spectrograms cut from recordings of Irish
             traditional music, then asked it for jigs, reels and airs.
           </p>
-          <p class="muted">
-            Everything below was generated in October 2026, on a laptop GPU, with the published model and the pipeline in
-            <a class="text-link" href="https://github.com/hdparmar/Tradifusion">this repository</a>:
-            71 clips of 5.12 seconds, all of them, unedited apart from matching their volume. The settings for each are in
-            <a href="https://github.com/hdparmar/Tradifusion/blob/main/examples/experiments.json">experiments.json</a>.
-          </p>
+          <p class="muted">Click any spectrogram to hear it.</p>
         </div>
 
         <nav class="links" aria-label="Project links">
@@ -308,7 +303,7 @@
         <figcaption>
           <span class="mono edge"><span class="accent">▸ W02</span> 7 clips · seed 7 · 0:36</span>
           <span class="prompt">A generated set: jig <span class='arrow'>→</span> reel <span class='arrow'>→</span> air <span class='arrow'>→</span> hornpipe</span>
-          <p class="note">Four prompts, one seed. Each 5-second frame sits a little further along the path between two prompts, the way the thesis makes longer pieces (Section 5.4).</p>
+          <p class="note">Four prompts, one after the other. Each five-second frame moves a little closer to the next.</p>
         </figcaption>
         <div class="scroller">
           <div class="strip-inner" style="--n:7">
@@ -329,9 +324,8 @@
     <section aria-labelledby="text" class="section">
       <div class="col">
       <div class="sh"><h2 id="text" class="mono"><span class="accent">▸ 01</span><span>Text to audio</span></h2></div>
-      <p class="lede">One prompt, one 5-second clip. Every training image had the same caption,
-      <q>An Irish Traditional Tune</q>, so the words mostly nudge the result; the seed spectrogram it starts
-      from shapes it more. Click a frame to play it.</p>
+      <p class="lede">One prompt, five seconds each. Every training image had the same caption,
+      <q>An Irish Traditional Tune</q>, so the words only nudge it. The spectrogram it starts from matters more.</p>
       <div class="grid">
       <figure class="clip" data-audio="media/t01.mp3" data-duration="5.11" data-frames="1">
         <button type="button" class="frame" aria-label="Play An Irish traditional tune">
@@ -471,14 +465,14 @@
     <section aria-labelledby="interp" class="section">
       <div class="col">
       <div class="sh"><h2 id="interp" class="mono"><span class="accent">▸ 02</span><span>Between two prompts</span></h2></div>
-      <p class="lede">The text embedding slides from the first prompt to the second in even steps of α while the
-      seed image and noise stay fixed. More steps give a smoother walk, and more repetition.</p>
+      <p class="lede">The prompt slides from one to the other while everything else stays put. α is how far along
+      it is, from 0 to 1. More steps make the change smoother, but it also repeats more.</p>
       <div class="stack">
       <figure class="strip" data-audio="media/i01.mp3" data-duration="51.10" data-frames="10">
         <figcaption>
           <span class="mono edge"><span class="accent">▸ I01</span> 10 steps · seed 42 · 0:51</span>
           <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> An Irish tune with acoustic fiddle lead</span>
-          <p class="note">The 10-step interpolation from Figure 23 of the thesis.</p>
+          
         </figcaption>
         <div class="scroller">
           <div class="strip-inner" style="--n:10">
@@ -514,7 +508,7 @@
         <figcaption>
           <span class="mono edge"><span class="accent">▸ I03</span> 5 steps · seed 13 · 0:26</span>
           <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> A mournful violin piece</span>
-          <p class="note">The alpha example from Section 5.4.</p>
+          
         </figcaption>
         <div class="scroller">
           <div class="strip-inner" style="--n:5">
@@ -588,14 +582,14 @@
     <section aria-labelledby="walk" class="section">
       <div class="col">
       <div class="sh"><h2 id="walk" class="mono"><span class="accent">▸ 03</span><span>Walking the seed</span></h2></div>
-      <p class="lede">Same prompt the whole way; only the noise moves, by spherical interpolation between three seeds.
-      This is how Riffusion makes endless loops, and where the repetition the thesis mentions comes from.</p>
+      <p class="lede">Same prompt the whole way. Only the random noise changes, drifting between three seeds.
+      It's how Riffusion makes its endless loops.</p>
       <div class="stack">
       <figure class="strip" data-audio="media/w01.mp3" data-duration="25.55" data-frames="5">
         <figcaption>
           <span class="mono edge"><span class="accent">▸ W01</span> 5 clips · 0:26</span>
           <span class="prompt">An Irish traditional tune</span>
-          <p class="note">One prompt, walking the noise seed.</p>
+          
         </figcaption>
         <div class="scroller">
           <div class="strip-inner" style="--n:5">
@@ -615,13 +609,13 @@
     <section aria-labelledby="settings" class="section">
       <div class="col">
       <div class="sh"><h2 id="settings" class="mono"><span class="accent">▸ 04</span><span>What the settings do</span></h2></div>
-      <p class="lede">Prompt <q>An Irish traditional tune</q> and seed 42 throughout; one setting changes per row.
-      Defaults are denoising 0.75 and guidance 7.</p>
-      <h3 class="mono sub">Denoising strength: how far it may wander from the seed</h3>
+      <p class="lede">Same prompt and seed throughout, one setting changed per row. The rest of the page uses
+      denoising 0.75 and guidance 7.</p>
+      <h3 class="mono sub">Denoising: how far it can drift from where it starts</h3>
       <div class="grid five">
       <figure class="clip still">
         <div class="frame"><img class="spec" src="media/seed-05_00040.webp" width="256" height="256" alt="The seed spectrogram, a real recording from the dataset" loading="lazy"></div>
-        <figcaption><span class="mono edge"><span class="accent">▸ SEED</span> from the dataset</span><span class="prompt">Where it starts</span></figcaption>
+        <figcaption><span class="mono edge"><span class="accent">▸ START</span> from the dataset</span><span class="prompt">Where it starts</span></figcaption>
       </figure>
       <figure class="clip" data-audio="media/s030.mp3" data-duration="5.11" data-frames="1">
         <button type="button" class="frame" aria-label="Play An Irish traditional tune">
@@ -715,7 +709,7 @@
         </figcaption>
       </figure>
       </div>
-      <h3 class="mono sub">Seed image: the same prompt from four starting points</h3>
+      <h3 class="mono sub">Starting spectrogram: four different starts</h3>
       <div class="grid">
       <figure class="clip" data-audio="media/m1.mp3" data-duration="5.11" data-frames="1">
         <button type="button" class="frame" aria-label="Play An Irish traditional tune">
@@ -724,7 +718,7 @@
           <span class="state mono" aria-hidden="true">▶</span>
         </button>
         <figcaption>
-          <span class="mono edge"><span class="accent">▸ M1</span> seed image A</span>
+          <span class="mono edge"><span class="accent">▸ M1</span> start A</span>
           <span class="prompt">An Irish traditional tune</span>
         </figcaption>
       </figure>
@@ -735,7 +729,7 @@
           <span class="state mono" aria-hidden="true">▶</span>
         </button>
         <figcaption>
-          <span class="mono edge"><span class="accent">▸ M2</span> seed image B</span>
+          <span class="mono edge"><span class="accent">▸ M2</span> start B</span>
           <span class="prompt">An Irish traditional tune</span>
         </figcaption>
       </figure>
@@ -746,7 +740,7 @@
           <span class="state mono" aria-hidden="true">▶</span>
         </button>
         <figcaption>
-          <span class="mono edge"><span class="accent">▸ M3</span> seed image C</span>
+          <span class="mono edge"><span class="accent">▸ M3</span> start C</span>
           <span class="prompt">An Irish traditional tune</span>
         </figcaption>
       </figure>
@@ -757,7 +751,7 @@
           <span class="state mono" aria-hidden="true">▶</span>
         </button>
         <figcaption>
-          <span class="mono edge"><span class="accent">▸ M4</span> seed image D</span>
+          <span class="mono edge"><span class="accent">▸ M4</span> start D</span>
           <span class="prompt">An Irish traditional tune</span>
         </figcaption>
       </figure>
@@ -768,92 +762,28 @@
       <div class="col">
       <div class="sh"><h2 id="how" class="mono"><span class="accent">▸ 05</span><span>How it works</span></h2></div>
       <ol class="tracks">
-        <li><span class="mono accent">S1</span><div><h3>Cut</h3><p>About 1,700 recordings from Bob L. T. Sturm's collection, made mono at 44.1 kHz and cut into 5.12-second pieces, with silence removed.</p></div></li>
-        <li><span class="mono accent">S2</span><div><h3>Draw</h3><p>Each piece becomes a 512 × 512 picture: a mel spectrogram with 512 bands from 60 to 8,500 Hz, 100 ms Hann windows, 10 ms apart. The louder a band, the stronger its line.</p></div></li>
-        <li><span class="mono accent">S3</span><div><h3>Caption</h3><p>Every picture gets the same caption, <q>An Irish Traditional Tune</q>: about 9,000 image and text pairs.</p></div></li>
-        <li><span class="mono accent">S4</span><div><h3>Fine-tune</h3><p>Starting from Riffusion v1, the U-Net trains for 122k steps (202 epochs) on two RTX A6000s, about four days. The CLIP text encoder stays frozen.</p></div></li>
-        <li><span class="mono accent">S5</span><div><h3>Generate</h3><p>A real spectrogram from the dataset is encoded, noised (denoising 0.75) and denoised over 50 steps, steered by the prompt. Sliding α between prompts or seeds gives the next frame.</p></div></li>
-        <li><span class="mono accent">S6</span><div><h3>Listen</h3><p>Inverse mel scale, then 32 rounds of Griffin-Lim to guess the phase, then a Tukey window on the first and last 100 ms. Frames are joined end to end.</p></div></li>
+        <li><span class="mono accent">S1</span><div><h3>Cut</h3><p>About 1,700 recordings from Bob L. T. Sturm's collection, cut into five-second pieces.</p></div></li>
+        <li><span class="mono accent">S2</span><div><h3>Draw</h3><p>Each piece becomes a 512 × 512 mel spectrogram, a picture of the sound.</p></div></li>
+        <li><span class="mono accent">S3</span><div><h3>Caption</h3><p>Every picture gets the same caption, <q>An Irish Traditional Tune</q>.</p></div></li>
+        <li><span class="mono accent">S4</span><div><h3>Fine-tune</h3><p>Starting from Riffusion, the model trains on those pairs for about four days on two GPUs.</p></div></li>
+        <li><span class="mono accent">S5</span><div><h3>Generate</h3><p>Take a real spectrogram, add noise, and let the model redraw it with the prompt as a guide.</p></div></li>
+        <li><span class="mono accent">S6</span><div><h3>Listen</h3><p>Griffin-Lim turns the picture back into sound, and the five-second frames are joined end to end.</p></div></li>
       </ol>
       <dl class="facts mono">
         <div><dt>Pairs</dt><dd>≈ 9,000</dd></div>
         <div><dt>Frame</dt><dd>512 × 512 · 5.12 s</dd></div>
-        <div><dt>Training</dt><dd>122k steps · 2 × A6000 · 4 days</dd></div>
-        <div><dt>One clip here</dt><dd>≈ 3 min · Radeon Pro 5500M · fp16</dd></div>
+        <div><dt>Training</dt><dd>122k steps · 4 days</dd></div>
       </dl>
-      </div>
-    </section>
-    <section aria-labelledby="2024" class="section">
-      <div class="col">
-      <div class="sh"><h2 id="2024" class="mono"><span class="accent">▸ 06</span><span>The 2024 examples</span></h2></div>
-      <p class="lede">The clips this page launched with in March 2024, made on the CPU of this same laptop at about
-      ten minutes each. Their spectrograms are redrawn here from the audio.</p>
-      <div class="grid">
-      <figure class="clip" data-audio="media/2024-a.mp3" data-duration="5.11" data-frames="1">
-        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
-          <img class="spec" src="media/2024-a.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
-          <span class="playhead" aria-hidden="true"></span>
-          <span class="state mono" aria-hidden="true">▶</span>
-        </button>
-        <figcaption>
-          <span class="mono edge"><span class="accent">▸ 2024-A</span> single clip</span>
-          <span class="prompt">An Irish traditional tune</span>
-        </figcaption>
-      </figure>
-      <figure class="clip" data-audio="media/2024-b.mp3" data-duration="5.11" data-frames="1">
-        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
-          <img class="spec" src="media/2024-b.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
-          <span class="playhead" aria-hidden="true"></span>
-          <span class="state mono" aria-hidden="true">▶</span>
-        </button>
-        <figcaption>
-          <span class="mono edge"><span class="accent">▸ 2024-B</span> single clip</span>
-          <span class="prompt">An Irish traditional tune</span>
-        </figcaption>
-      </figure>
-      <figure class="clip" data-audio="media/2024-c.mp3" data-duration="5.11" data-frames="1">
-        <button type="button" class="frame" aria-label="Play An Irish traditional tune">
-          <img class="spec" src="media/2024-c.webp" width="448" height="448" alt="Generated mel spectrogram for: An Irish traditional tune" loading="lazy">
-          <span class="playhead" aria-hidden="true"></span>
-          <span class="state mono" aria-hidden="true">▶</span>
-        </button>
-        <figcaption>
-          <span class="mono edge"><span class="accent">▸ 2024-C</span> single clip</span>
-          <span class="prompt">An Irish traditional tune</span>
-        </figcaption>
-      </figure>
-      </div>
-      <div class="stack">
-      <figure class="strip" data-audio="media/2024-d.mp3" data-duration="10.22" data-frames="2">
-        <figcaption>
-          <span class="mono edge"><span class="accent">▸ 2024-D</span> 2 steps · 0:10</span>
-          <span class="prompt">An Irish traditional tune <span class='arrow'>→</span> with a fiddle lead</span>
-          
-        </figcaption>
-        <div class="scroller">
-          <div class="strip-inner" style="--n:2">
-            <button type="button" class="frame" aria-label="Play 2 steps · 0:10. Click a frame to jump to it.">
-              <img class="spec" src="media/2024-d-strip.webp" width="512" height="256" alt="2 generated spectrograms side by side" loading="lazy">
-              <span class="playhead" aria-hidden="true"></span>
-              <span class="state mono" aria-hidden="true">▶</span>
-            </button>
-            <div class="mono ticks" aria-hidden="true"><span data-i="0"><i class=greek>α</i> 0</span><span data-i="1">1</span></div>
-          </div>
-        </div>
-        <p class="mono time" aria-live="off"><span class="t">0:00</span> / 0:10</p>
-      </figure>
-      </div>
       </div>
     </section>
     <section aria-labelledby="limits" class="section">
       <div class="col">
-      <div class="sh"><h2 id="limits" class="mono"><span class="accent">▸ 07</span><span>What it can&#x27;t do</span></h2></div>
+      <div class="sh"><h2 id="limits" class="mono"><span class="accent">▸ 06</span><span>What it can&#x27;t do</span></h2></div>
       <ul class="plain">
-        <li><strong>It doesn't write tunes.</strong> Each frame is 5 seconds with no idea of the AABB form of a reel or jig. Long pieces are frames placed side by side.</li>
-        <li><strong>Griffin-Lim guesses the phase,</strong> so the sound is smeared and a little metallic. A trained vocoder (MelGAN, HiFi-GAN) would sound much cleaner.</li>
-        <li><strong>The prompt is a weak handle.</strong> With one caption for all 9,000 images, words like <q>banjo</q> or <q>harp</q> come from Stable Diffusion's text encoder rather than from the music. The seed image matters more.</li>
-        <li><strong>Joins are audible.</strong> Every frame is faded in and out over 100 ms before it is joined to the next.</li>
-        <li><strong>The recordings stay private.</strong> The model learned from commercial recordings, so only its outputs are published here, not the music it learned from.</li>
+        <li><strong>It doesn't write tunes.</strong> Each frame is five seconds long and knows nothing about the AABB shape of a reel or jig. Longer pieces are frames placed side by side.</li>
+        <li><strong>It sounds a bit metallic.</strong> Griffin-Lim has to guess the phase. A neural vocoder like HiFi-GAN would sound cleaner.</li>
+        <li><strong>The prompt doesn't do much.</strong> All 9,000 images had the same caption, so words like <q>banjo</q> or <q>harp</q> don't mean much to it.</li>
+        <li><strong>You can hear the joins.</strong> Each frame fades in and out before it's joined to the next.</li>
       </ul>
       </div>
     </section>
