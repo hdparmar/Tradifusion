@@ -34,9 +34,20 @@ STRIP_PX = 256  # height of each frame in a strip
 
 # ---------------------------------------------------------------- media
 
-def to_mp3(wav: str, mp3: str) -> None:
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-ac", "1", "-codec:a", "libmp3lame",
+def to_mp3(wav: str, mp3: str, target_rms_db: float = -20.0, peak_db: float = -1.0) -> None:
+    """
+    Encode for the web at a common level. One fixed gain per file brings its RMS to target_rms_db,
+    lowered if needed so the peak stays under peak_db. No compression, so the dynamics are untouched.
+    """
+    sr, x = wavfile.read(wav)
+    x = x.astype(np.float64) / 32768.0
+    rms = np.sqrt(np.mean(x ** 2)) or 1e-9
+    gain = min(10 ** (target_rms_db / 20) / rms, 10 ** (peak_db / 20) / (np.abs(x).max() or 1e-9))
+    tmp = mp3 + ".level.wav"
+    wavfile.write(tmp, sr, (x * gain * 32767).astype(np.int16))
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", tmp, "-ac", "1", "-codec:a", "libmp3lame",
                     "-b:a", "128k", mp3], check=True)
+    os.remove(tmp)
 
 
 def to_webp(img: Image.Image, path: str, quality: int = 82) -> None:
@@ -143,6 +154,12 @@ def main() -> None:
     with open(os.path.join(args.results, "manifest.json")) as f:
         manifest = json.load(f)
     os.makedirs(MEDIA, exist_ok=True)
+
+    # generate_examples.py scores each frame's colour; a grey spectrogram scores 2-3.
+    for exp_id, exp in manifest.items():
+        for c in exp["clips"]:
+            if c.get("colour", 0) > 6:
+                print(f"WARNING: {exp_id} clip {c['n']} looks broken (colour {c['colour']})")
 
     def frames_of(exp_id: str) -> list[str]:
         return [os.path.join(args.results, exp_id, f"{c['n']:02d}.png") for c in manifest[exp_id]["clips"]]
@@ -306,7 +323,7 @@ def render(manifest: dict, legacy_dur: dict) -> str:
         <div><dt>Pairs</dt><dd>≈ 9,000</dd></div>
         <div><dt>Frame</dt><dd>512 × 512 · 5.12 s</dd></div>
         <div><dt>Training</dt><dd>122k steps · 2 × A6000 · 4 days</dd></div>
-        <div><dt>One clip here</dt><dd>≈ 90 s on a Radeon 5500M</dd></div>
+        <div><dt>One clip here</dt><dd>≈ 4 min · Radeon Pro 5500M · fp16</dd></div>
       </dl>"""))
 
     # 06 The 2024 examples.

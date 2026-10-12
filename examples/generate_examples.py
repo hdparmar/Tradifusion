@@ -24,6 +24,7 @@ import sys
 import time
 
 import numpy as np
+import torch
 from PIL import Image
 from scipy.io import wavfile
 
@@ -58,8 +59,25 @@ def frame_plan(experiment: dict) -> list[dict]:
 
 
 def clip_key(frame: dict, settings: dict) -> str:
-    """Everything that decides the pixels of a clip, so identical clips are only made once."""
-    return json.dumps([frame["start"], frame["end"], round(frame["alpha"], 6), settings], sort_keys=True)
+    """
+    Everything that decides the pixels of a clip, so identical clips are only made once.
+    At alpha 0 the end keyframe plays no part. At alpha 1 the start prompt plays no part either,
+    as long as both ends share a seed (the seed image is always sampled with the start seed).
+    """
+    start, end, alpha = frame["start"], frame["end"], round(frame["alpha"], 6)
+    if alpha == 0:
+        end = start
+    elif alpha == 1 and start["seed"] == end["seed"]:
+        start, alpha = end, 0
+    return json.dumps([start, end, alpha, settings], sort_keys=True)
+
+
+def colour(image: Image.Image) -> float:
+    """
+    Mean HSV saturation (0-255). A healthy spectrogram decodes almost grey (2-3); broken frames from
+    float32 + attention slicing on MPS scored 11 (blotches) and 55 (coloured noise).
+    """
+    return float(np.asarray(image.convert("HSV"))[..., 1].mean())
 
 
 def render_clip(pipeline: TradifusionPipeline, frame: dict, settings: dict) -> tuple[Image.Image, np.ndarray]:
@@ -89,16 +107,27 @@ def main() -> None:
     parser.add_argument("--out", default=os.path.join(HERE, "output"))
     parser.add_argument("--device", default="mps", help="mps, cuda or cpu")
     parser.add_argument("--only", nargs="*", help="Experiment ids to run (default: all)")
+    parser.add_argument("--fp16", action="store_true",
+                        help="Half precision. On a 4 GB Radeon (MPS) it is ~2.7x faster than float32 with attention "
+                             "slicing, and avoids the coloured-noise frames that combination produced.")
     args = parser.parse_args()
 
     with open(args.config) as f:
         config = json.load(f)
     experiments = [e for e in config["experiments"] if not args.only or e["id"] in args.only]
 
-    pipeline = TradifusionPipeline.load_checkpoint("hdparmar/tradfusion-v2", device=args.device)
+    if args.fp16:
+        # load_checkpoint forces float32 on MPS, so load directly, the same way it does.
+        pipeline = TradifusionPipeline.from_pretrained(
+            "hdparmar/tradfusion-v2", torch_dtype=torch.float16,
+            safety_checker=lambda images, **kwargs: (images, False),
+        ).to(args.device)
+    else:
+        pipeline = TradifusionPipeline.load_checkpoint("hdparmar/tradfusion-v2", device=args.device)
+        # Attention one slice at a time: fits a 4 GB GPU in float32, costs speed.
+        pipeline.enable_attention_slicing()
     pipeline.set_progress_bar_config(disable=True)
-    # Attention one slice at a time: fits a 4 GB GPU, costs a little speed.
-    pipeline.enable_attention_slicing()
+    dtype = "float16" if args.fp16 else "float32"
 
     manifest_path = os.path.join(args.out, "manifest.json")
     manifest = {}
@@ -106,9 +135,17 @@ def main() -> None:
         with open(manifest_path) as f:
             manifest = json.load(f)
 
-    made = {}  # clip_key -> (png path, wav path), to reuse a clip that two experiments share
+    # clip_key -> (png path, wav path): a clip shared by two experiments (an interpolation that ends on a
+    # single-prompt clip, say) is made once, including across runs.
+    made = {}
+    for exp_id, done in manifest.items():
+        for c in done["clips"]:
+            made[clip_key(c, done["settings"])] = (os.path.join(args.out, exp_id, f"{c['n']:02d}.png"),
+                                                   os.path.join(args.out, exp_id, f"{c['n']:02d}.wav"))
+
     for experiment in experiments:
         settings = {k: experiment.get(k, v) for k, v in config["defaults"].items()}
+        settings["dtype"] = dtype
         exp_dir = os.path.join(args.out, experiment["id"])
         os.makedirs(exp_dir, exist_ok=True)
 
@@ -127,14 +164,17 @@ def main() -> None:
                     image.save(png)
                     wavfile.write(wav, SAMPLE_RATE, samples)
             made[key] = (png, wav)
+            sat = colour(Image.open(png))
             clips.append({
                 "n": n,
-                "alpha": round(frame["alpha"], 4),
+                "alpha": frame["alpha"],
                 "start": frame["start"],
                 "end": frame["end"],
                 "seconds": round(time.time() - t0, 1),
+                "colour": round(sat, 1),
             })
-            print(f"[{experiment['id']}] clip {n} alpha={frame['alpha']:.2f} {time.time() - t0:.0f}s", flush=True)
+            flag = "  BROKEN? coloured frame" if sat > 6 else ""
+            print(f"[{experiment['id']}] clip {n} alpha={frame['alpha']:.2f} {time.time() - t0:.0f}s{flag}", flush=True)
 
         # Stitch the clips end to end, as txt2audio_tradfusion does.
         full = np.concatenate([wavfile.read(os.path.join(exp_dir, f"{c['n']:02d}.wav"))[1] for c in clips])

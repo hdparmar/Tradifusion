@@ -1,10 +1,5 @@
 {
-  "defaults": {
-    "seed_image": "05_00014",
-    "denoising": 0.75,
-    "guidance": 7.0,
-    "num_inference_steps": 50
-  },
+  "defaults": {"seed_image": "05_00014", "denoising": 0.75, "guidance": 7.0, "num_inference_steps": 50},
   "experiments": [
     {"id": "t01", "section": "text", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00014", "note": "The caption every training image had."},
     {"id": "t02", "section": "text", "keyframes": [{"prompt": "A lively Irish traditional jig with a prominent fiddle lead", "seed": 7}], "seed_image": "image_local_9217"},
@@ -18,30 +13,25 @@
     {"id": "t10", "section": "text", "keyframes": [{"prompt": "A gentle slow air on Irish harp", "seed": 23}], "seed_image": "image_local_30"},
     {"id": "t11", "section": "text", "keyframes": [{"prompt": "Tenor banjo playing a fast Irish reel", "seed": 29}], "seed_image": "image_local_9257"},
     {"id": "t12", "section": "text", "keyframes": [{"prompt": "A slip jig on wooden flute", "seed": 31}], "seed_image": "image_local_9337"},
-
-    {"id": "i01", "section": "interp", "steps": 10, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}, {"prompt": "An Irish tune with acoustic fiddle lead", "seed": 42}], "seed_image": "05_00014", "note": "The 10-step interpolation from Figure 23 of the thesis."},
-    {"id": "i02", "section": "interp", "steps": 6, "keyframes": [{"prompt": "A slow Irish air on uilleann pipes", "seed": 21}, {"prompt": "A lively Irish reel on tin whistle", "seed": 21}], "seed_image": "image_local_9377"},
-    {"id": "i03", "section": "interp", "steps": 6, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 13}, {"prompt": "A mournful violin piece", "seed": 13}], "seed_image": "05_00040", "note": "The alpha example from Section 5.4."},
-    {"id": "i04", "section": "interp", "steps": 6, "keyframes": [{"prompt": "An Irish jig on fiddle", "seed": 64}, {"prompt": "A Swedish folk polska on nyckelharpa", "seed": 64}], "seed_image": "image_local_9217"},
-    {"id": "i05", "section": "interp", "steps": 6, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 5}, {"prompt": "Lively tin whistle and hand drum rhythm", "seed": 5}], "seed_image": "image_local_282"},
-    {"id": "i06", "section": "interp", "steps": 6, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 8}, {"prompt": "An Irish traditional tune featuring a solo uilleann pipes melody", "seed": 8}], "seed_image": "image_local_30"},
-
-    {"id": "w01", "section": "walk", "steps": 4, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 101}, {"prompt": "An Irish traditional tune", "seed": 202}, {"prompt": "An Irish traditional tune", "seed": 303}], "seed_image": "05_00014", "note": "One prompt, walking the noise seed."},
     {"id": "w02", "section": "walk", "steps": 3, "keyframes": [{"prompt": "An Irish jig on fiddle", "seed": 7}, {"prompt": "An Irish reel on fiddle and flute", "seed": 7}, {"prompt": "A slow Irish air on uilleann pipes", "seed": 7}, {"prompt": "An Irish hornpipe on button accordion", "seed": 7}], "seed_image": "image_local_9217", "note": "A generated set: jig, reel, air, hornpipe."},
-
-    {"id": "s030", "section": "strength", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "denoising": 0.30},
-    {"id": "s050", "section": "strength", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "denoising": 0.50},
+    {"id": "i01", "section": "interp", "steps": 10, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}, {"prompt": "An Irish tune with acoustic fiddle lead", "seed": 42}], "seed_image": "05_00014", "note": "The 10-step interpolation from Figure 23 of the thesis."},
+    {"id": "i02", "section": "interp", "steps": 5, "keyframes": [{"prompt": "A slow Irish air on uilleann pipes", "seed": 21}, {"prompt": "A lively Irish reel on tin whistle", "seed": 21}], "seed_image": "image_local_9377"},
+    {"id": "i03", "section": "interp", "steps": 5, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 13}, {"prompt": "A mournful violin piece", "seed": 13}], "seed_image": "05_00040", "note": "The alpha example from Section 5.4."},
+    {"id": "i04", "section": "interp", "steps": 5, "keyframes": [{"prompt": "An Irish jig on fiddle", "seed": 64}, {"prompt": "A Swedish folk polska on nyckelharpa", "seed": 64}], "seed_image": "image_local_9217"},
+    {"id": "s030", "section": "strength", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "denoising": 0.3},
+    {"id": "s050", "section": "strength", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "denoising": 0.5},
     {"id": "s075", "section": "strength", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "denoising": 0.75},
     {"id": "s095", "section": "strength", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "denoising": 0.95},
-
     {"id": "g01", "section": "guidance", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "guidance": 1.0},
     {"id": "g03", "section": "guidance", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "guidance": 3.0},
     {"id": "g07", "section": "guidance", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "guidance": 7.0},
     {"id": "g12", "section": "guidance", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040", "guidance": 12.0},
-
     {"id": "m1", "section": "seedimage", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "05_00040"},
     {"id": "m2", "section": "seedimage", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "image_local_9377"},
     {"id": "m3", "section": "seedimage", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "image_local_282"},
-    {"id": "m4", "section": "seedimage", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "image_local_30"}
+    {"id": "m4", "section": "seedimage", "keyframes": [{"prompt": "An Irish traditional tune", "seed": 42}], "seed_image": "image_local_30"},
+    {"id": "w01", "section": "walk", "steps": 3, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 101}, {"prompt": "An Irish traditional tune", "seed": 202}, {"prompt": "An Irish traditional tune", "seed": 303}], "seed_image": "05_00014", "note": "One prompt, walking the noise seed."},
+    {"id": "i05", "section": "interp", "steps": 5, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 5}, {"prompt": "Lively tin whistle and hand drum rhythm", "seed": 5}], "seed_image": "image_local_282"},
+    {"id": "i06", "section": "interp", "steps": 5, "keyframes": [{"prompt": "An Irish traditional tune", "seed": 8}, {"prompt": "An Irish traditional tune featuring a solo uilleann pipes melody", "seed": 8}], "seed_image": "image_local_30"}
   ]
 }

@@ -149,8 +149,12 @@
     h3.sub { margin: 40px 0 0; font-weight: 400; }
 
     figure { margin: 0; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 28px 20px; margin-top: 22px; }
-    .grid.five { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    /* Rows of four (five where the seed leads a row), two on a phone, so sets read as even rows. */
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; margin-top: 22px; }
+    @media (min-width: 720px) {
+      .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .grid.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    }
     .stack { display: flex; flex-direction: column; gap: 48px; margin-top: 28px; }
 
     /* A spectrogram is a frame of film: ink on paper in light mode, light on graphite in dark. */
@@ -188,8 +192,17 @@
     .strip .prompt { font-size: 16.5px; font-weight: 500; }
     .arrow { padding: 0 0.15em; color: var(--accent); font-weight: 400; }
     .note { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
+    /* Gaps between the 5-second frames of a strip, in the colour behind it, like the frame line on a negative. */
+    .strip .frame::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / var(--n) - 2px),
+                  var(--gap) calc(100% / var(--n) - 2px), var(--gap) calc(100% / var(--n)));
+    }
+    .section { --gap: var(--bg); }
+    .band { --gap: var(--card); }
+    .playhead, .state { z-index: 1; }
     .scroller { overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
-    .strip-inner { min-width: calc(var(--n) * 64px); }
+    .strip-inner { min-width: calc(var(--n) * 64px); max-width: calc(var(--n) * 260px); }
     .ticks {
       display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); margin-top: 8px;
       color: var(--muted); font-size: 11px; letter-spacing: 0.04em;
@@ -270,9 +283,9 @@
             traditional music, then asked it for jigs, reels and airs.
           </p>
           <p class="muted">
-            Everything below was generated in October 2026 with the published model and the pipeline in
+            Everything below was generated in October 2026, on a laptop GPU, with the published model and the pipeline in
             <a class="text-link" href="https://github.com/hdparmar/Tradifusion">this repository</a>:
-            %%CLIPS%% clips of 5.12 seconds, all of them, unedited. The settings for each are in
+            %%CLIPS%% clips of 5.12 seconds, all of them, unedited apart from matching their volume. The settings for each are in
             <a href="https://github.com/hdparmar/Tradifusion/blob/main/examples/experiments.json">experiments.json</a>.
           </p>
         </div>

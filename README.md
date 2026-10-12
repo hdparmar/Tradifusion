@@ -58,11 +58,12 @@ generated_image = pipeline.txt2audio_tradfusion(start_prompt,
 ### Making the examples on the page 🎧
 Every clip on the page comes from `examples/experiments.json` (prompts, seeds, seed image and settings):
 ```bash
-python examples/generate_examples.py --out examples/output --device mps   # ~90 s per clip on a Radeon Pro 5500M
+python examples/generate_examples.py --out examples/output --device mps --fp16   # 2-4 min per clip on a Radeon Pro 5500M
 python examples/build_page.py --results examples/output                    # writes index.html and media/
 ```
 An experiment with one keyframe is a single 5-second clip; with more it interpolates between them and
-stitches the clips together. A rerun skips clips that are already there.
+stitches the clips together. A rerun skips clips that are already there, and a clip two experiments share is made once.
+On Apple GPUs use `--fp16`: float32 with attention slicing on a 4 GB Radeon produced frames of coloured noise.
 
 ## Training 🏋🏽
 Train on 512 x 512 Spectrograms on recordings of Irish traditional music. 
