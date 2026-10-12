@@ -1,3 +1,4 @@
+import inspect
 import io
 import typing as T
 import numpy as np
@@ -8,7 +9,6 @@ from scipy.signal.windows import tukey
 import torch
 import torchaudio
 import argparse
-import matplotlib.pyplot as plt
 
 
 def spectrogram_from_image(
@@ -60,6 +60,10 @@ def waveform_from_spectrogram(
     # TODO(hayk): Make this a class that caches the two things
 
     if mel_scale:
+        # torchaudio >= 2.1 solves the inverse mel scale with least squares and dropped max_iter.
+        inverse_mel_args = {}
+        if "max_iter" in inspect.signature(torchaudio.transforms.InverseMelScale).parameters:
+            inverse_mel_args["max_iter"] = max_mel_iters
         mel_inv_scaler = torchaudio.transforms.InverseMelScale(
             n_mels=n_mels,
             sample_rate=sample_rate,
@@ -68,7 +72,7 @@ def waveform_from_spectrogram(
             n_stft=n_fft // 2 + 1,
             norm=None,
             mel_scale="htk",
-            max_iter=max_mel_iters,
+            **inverse_mel_args,
         ).to(device)
 
         Sxx_torch = mel_inv_scaler(Sxx_torch)
@@ -89,6 +93,8 @@ def display_results(original_image, waveform, windowed_waveform, sample_rate):
     """
     Displays the original image, waveform, and windowed waveform in a subplot.
     """
+    import matplotlib.pyplot as plt  # only needed for --display
+
     fig, axs = plt.subplots(3, 1, figsize=(10, 8))
 
     # Display original image
@@ -178,7 +184,8 @@ def wav_bytes_from_spectrogram_image(image: Image.Image, duration: int, nmels: i
     if display:
         display_results(image, samples, windowed_samples, sample_rate)
     wav_bytes = io.BytesIO()
-    wavfile.write(wav_bytes, sample_rate, windowed_samples.astype(np.int16))
+    # Clip before the int16 cast so a loud spectrogram saturates instead of wrapping around.
+    wavfile.write(wav_bytes, sample_rate, np.clip(windowed_samples, -32768, 32767).astype(np.int16))
     wav_bytes.seek(0)
 
     duration_s = float(len(windowed_samples)) / sample_rate
@@ -199,18 +206,18 @@ def write_bytesio_to_file(filename, bytesio):
         # Copy the BytesIO stream to the output file
         outfile.write(bytesio.getbuffer())
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input", help="Input file to process, anything that FFMPEG supports, but wav and mp3 are recommended")
-parser.add_argument("-o", "--output", help="Output Image")
-parser.add_argument("-d", "--duration", default=5119, help="Image duration")
-parser.add_argument("-m", "--maxvol", default=100, help="Max Volume, 255 for identical results")
-parser.add_argument("-p", "--powerforimage", default=0.25, help="Power for Image")
-parser.add_argument("-n", "--nmels", default=512, help="n_mels to use for Image, basically width. Higher = more fidelity")
-parser.add_argument("--display", action="store_true", help="Display original image and waveforms")
-args = parser.parse_args()
-
 # Main execution
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", help="Input file to process, anything that FFMPEG supports, but wav and mp3 are recommended")
+    parser.add_argument("-o", "--output", help="Output Image")
+    parser.add_argument("-d", "--duration", default=5119, help="Image duration")
+    parser.add_argument("-m", "--maxvol", default=100, help="Max Volume, 255 for identical results")
+    parser.add_argument("-p", "--powerforimage", default=0.25, help="Power for Image")
+    parser.add_argument("-n", "--nmels", default=512, help="n_mels to use for Image, basically width. Higher = more fidelity")
+    parser.add_argument("--display", action="store_true", help="Display original image and waveforms")
+    args = parser.parse_args()
+
     filename = args.input
     image = Image.open(filename)
     wav_bytes, duration_s = wav_bytes_from_spectrogram_image(image, duration=int(args.duration), nmels=int(args.nmels), maxvol=int(args.maxvol), power_for_image=float(args.powerforimage), device="cpu", display=args.display)

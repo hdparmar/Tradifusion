@@ -10,7 +10,7 @@ import random
 import numpy as np
 
 from diffusers.models import AutoencoderKL, UNet2DConditionModel
-from diffusers.pipeline_utils import DiffusionPipeline
+from diffusers import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
 from diffusers.schedulers import DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler
 from diffusers.utils import logging
@@ -23,6 +23,10 @@ from util import torch_util
 from external.prompt_weighting import get_weighted_text_embeddings
 from datatypes import PromptInput, InferenceInput
 from imgs2audio import wav_bytes_from_spectrogram_image, write_bytesio_to_file
+
+# Seed images live next to this file, so the default works from any working directory.
+SEED_IMAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "seed_images")
+
 
 class TradifusionPipeline(DiffusionPipeline):
     def __init__(
@@ -119,6 +123,10 @@ class TradifusionPipeline(DiffusionPipeline):
         init_image: T.Optional[Image.Image] = None,
         mask_image: T.Optional[Image.Image] = None,
         use_reweighting: bool = True,
+        start_seed: int = 42,
+        end_seed: T.Optional[int] = None,
+        denoising: float = 0.75,
+        guidance: float = 7.0,
     ) -> Image.Image:
         """
         Runs inference using interpolation with both img2img and text conditioning.
@@ -130,11 +138,17 @@ class TradifusionPipeline(DiffusionPipeline):
                         while black pixels will be preserved. It will be converted to a single
                         channel (luminance) before use.
             use_reweighting: Use prompt reweighting
+            start_seed, end_seed: Noise seeds at alpha = 0 and alpha = 1. end_seed defaults to start_seed.
+            denoising: How far the seed image is noised before denoising (0 keeps it, 1 ignores it).
+            guidance: Classifier-free guidance scale.
         """
 
-        start = PromptInput(prompt=start_prompt, seed=42)
+        if end_seed is None:
+            end_seed = start_seed
 
-        end = PromptInput(prompt=end_prompt, seed=42)
+        start = PromptInput(prompt=start_prompt, seed=start_seed, denoising=denoising, guidance=guidance)
+
+        end = PromptInput(prompt=end_prompt, seed=end_seed, denoising=denoising, guidance=guidance)
 
         inputs = InferenceInput(
             alpha=alpha,
@@ -144,7 +158,7 @@ class TradifusionPipeline(DiffusionPipeline):
         )
 
         if init_image is None:
-            init_image = self.load_random_seed_image("seed_images")
+            init_image = self.load_random_seed_image(SEED_IMAGE_DIR)
         guidance_scale = start.guidance * (1.0 - alpha) + end.guidance * alpha
 
         # TODO(hayk): Always generate the seed on CPU?
@@ -302,12 +316,13 @@ class TradifusionPipeline(DiffusionPipeline):
         )
 
         # add noise to latents using the timesteps
+        # A CPU generator cannot draw directly on MPS: draw on the generator's device, then move.
         noise_a = torch.randn(
-            init_latents.shape, generator=generator_a, device=self.device, dtype=latents_dtype
-        )
+            init_latents.shape, generator=generator_a, device=generator_a.device, dtype=latents_dtype
+        ).to(self.device)
         noise_b = torch.randn(
-            init_latents.shape, generator=generator_b, device=self.device, dtype=latents_dtype
-        )
+            init_latents.shape, generator=generator_b, device=generator_b.device, dtype=latents_dtype
+        ).to(self.device)
         noise = torch_util.slerp(interpolate_alpha, noise_a, noise_b)
         init_latents_orig = init_latents
         init_latents = self.scheduler.add_noise(init_latents, noise, timesteps)
@@ -353,7 +368,7 @@ class TradifusionPipeline(DiffusionPipeline):
 
             if mask is not None:
                 init_latents_proper = self.scheduler.add_noise(
-                    init_latents_orig, noise, torch.tensor([t])
+                    init_latents_orig, noise, torch.tensor([t], device=self.device)
                 )
                 # import ipdb; ipdb.set_trace()
                 latents = (init_latents_proper * mask) + (latents * (1 - mask))
@@ -445,7 +460,13 @@ class TradifusionPipeline(DiffusionPipeline):
         """
         Concatenates all audio files in the specified directory into a single audio file.
         """
-        audio_files = sorted([f for f in os.listdir(audio_dir) if f.endswith('.wav')])
+        # Only the numbered clips, in step order: a plain sort puts _10 before _2, and a
+        # final file left over from an earlier run would be stitched in again.
+        audio_files = [
+            f for f in os.listdir(audio_dir)
+            if f.startswith("transition_audio_") and f.endswith(".wav")
+        ]
+        audio_files.sort(key=lambda f: int(f[len("transition_audio_"):-len(".wav")]))
         combined = AudioSegment.empty()
         for filename in audio_files:
             filepath = os.path.join(audio_dir, filename)
